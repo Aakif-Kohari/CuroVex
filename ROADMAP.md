@@ -8,10 +8,10 @@ one before it.
 Goal: a disease query returns a ranked drug list with a working baseline explanation.
 Nothing after this phase works until this phase works.
 
-- [ ] 1.1 — Confirm local dev environment: clone repo, `docker compose up -d`, verify Neo4j (localhost:7474), Postgres, and Redis are all reachable.
-- [ ] 1.2 — Write `kg-pipeline/download_primekg.py`: downloads PrimeKG source files and saves them locally.
-- [ ] 1.3 — Write `kg-pipeline/normalize_schema.py`: maps PrimeKG's raw columns onto the node/relationship schema defined in `docs/DATABASE_SCHEMA.md`.
-- [ ] 1.4 — Write `kg-pipeline/load_to_neo4j.py`: loads the normalized data into Neo4j via the Neo4j Python driver, idempotently (safe to re-run).
+- [x] 1.1 — Confirm local dev environment: clone repo, `docker compose up -d`, verify Neo4j (localhost:7474), Postgres, and Redis are all reachable.
+- [x] 1.2 — Write `kg-pipeline/download_primekg.py`: downloads PrimeKG source files and saves them locally.
+- [x] 1.3 — Write `kg-pipeline/normalize_schema.py`: maps PrimeKG's raw columns onto the node/relationship schema defined in `docs/DATABASE_SCHEMA.md`.
+- [x] 1.4 — Write `kg-pipeline/load_to_neo4j.py`: loads the normalized data into Neo4j via the Neo4j Python driver, idempotently (safe to re-run).
 - [ ] 1.5 — Write `kg-pipeline/crosscheck_drkg.py`: downloads DRKG and compares entity/relation counts against the loaded PrimeKG graph, prints a discrepancy report.
 - [ ] 1.6 — Write `ml-core/benchmark_embeddings.py`: uses PyKEEN to train and score TransE, RotatE, ComplEx, DistMult on the graph; logs results to MLflow; prints the best model by AUPRC.
 - [ ] 1.7 — Write `ml-core/train_gat.py`: trains a PyTorch Geometric GAT link-prediction model on top of the best embedding from 1.6.
