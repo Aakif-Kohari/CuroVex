@@ -28,22 +28,22 @@ frontend yet — that's Phase 2.
 Goal: the counterfactual explainability engine (the actual research contribution) is built
 and benchmarked, then wrapped in a working, deployed product.
 
-- [ ] 2.1 — Write `explainability/counterfactual.py`: masks one graph edge at a time from a prediction's local subgraph, re-runs the model, records the score change.
-- [ ] 2.2 — Add fidelity scoring to 2.1: quantify how much each masked edge mattered.
-- [ ] 2.3 — Write `explainability/compare_methods.py`: runs both path-based and counterfactual explanations on a shared test set of predictions, outputs a fidelity/sparsity comparison table.
-- [ ] 2.4 — Write `validation/clinicaltrials_check.py`: queries the ClinicalTrials.gov API for a given drug–disease pair, returns whether a trial exists.
-- [ ] 2.5 — Write `validation/pubmed_check.py`: queries PubMed E-utilities for recent literature mentioning a given drug–disease pair.
-- [ ] 2.6 — Scaffold `api/`: FastAPI app structure (`main.py`, `models.py`, `routers/`), Pydantic schemas matching `docs/DATABASE_SCHEMA.md`.
-- [ ] 2.7 — Implement `GET /predictions/{disease_id}` (wraps 1.8).
-- [ ] 2.8 — Implement `GET /explanations/{prediction_id}` (wraps 1.9 and 2.1, returns both methods).
-- [ ] 2.9 — Implement `GET /validation/{prediction_id}` (wraps 2.4 and 2.5).
-- [ ] 2.10 — Set up Postgres models + Alembic migrations for `users`, `saved_searches`, `prediction_runs`, `predictions`, `explanations`, `validation_results`.
-- [ ] 2.11 — Add Celery task queue for long-running batch prediction jobs.
-- [ ] 2.12 — Add JWT auth: `POST /auth/register`, `POST /auth/login`.
-- [ ] 2.13 — Scaffold `dashboard/`: Next.js app, base layout, API client.
-- [ ] 2.14 — Build disease search screen + ranked results list.
-- [ ] 2.15 — Build explanation detail screen: Cytoscape.js subgraph view, toggle between path-based and counterfactual.
-- [ ] 2.16 — Build validation evidence display (trial/literature badges) on the results screen.
+- [x] 2.1 — Write `explainability/counterfactual.py`: masks one graph edge at a time from a prediction's local subgraph, re-runs the model, records the score change.
+- [x] 2.2 — Add fidelity scoring to 2.1: quantify how much each masked edge mattered.
+- [x] 2.3 — Write `explainability/compare_methods.py`: runs both path-based and counterfactual explanations on a shared test set of predictions, outputs a fidelity/sparsity comparison table.
+- [x] 2.4 — Write `validation/clinicaltrials_check.py`: queries the ClinicalTrials.gov API for a given drug–disease pair, returns whether a trial exists.
+- [x] 2.5 — Write `validation/pubmed_check.py`: queries PubMed E-utilities for recent literature mentioning a given drug–disease pair.
+- [x] 2.6 — Scaffold `api/`: FastAPI app structure (`main.py`, `models.py`, `routers/`), Pydantic schemas matching `docs/DATABASE_SCHEMA.md`.
+- [x] 2.7 — Implement `GET /predictions/{disease_id}` (wraps 1.8).
+- [x] 2.8 — Implement `GET /explanations/{prediction_id}` (wraps 1.9 and 2.1, returns both methods).
+- [x] 2.9 — Implement `GET /validation/{prediction_id}` (wraps 2.4 and 2.5).
+- [x] 2.10 — Set up Postgres models + Alembic migrations for `users`, `saved_searches`, `prediction_runs`, `predictions`, `explanations`, `validation_results`.
+- [x] 2.11 — Add Celery task queue for long-running batch prediction jobs.
+- [x] 2.12 — Add JWT auth: `POST /auth/register`, `POST /auth/login`.
+- [x] 2.13 — Scaffold `dashboard/`: Next.js app, base layout, API client.
+- [x] 2.14 — Build disease search screen + ranked results list.
+- [x] 2.15 — Build explanation detail screen: Cytoscape.js subgraph view, toggle between path-based and counterfactual.
+- [x] 2.16 — Build validation evidence display (trial/literature badges) on the results screen.
 - [ ] 2.17 — Deploy: Neo4j Aura Free, API on Render/Railway, frontend on Vercel — following `docs/DEPLOYMENT_CHECKLIST.md`.
 - [ ] 2.18 — Run the post-deploy smoke test checklist from `docs/DEPLOYMENT_CHECKLIST.md`.
 - [ ] 2.19 — Write up the fidelity/sparsity comparison from 2.3 as the paper's results section.
