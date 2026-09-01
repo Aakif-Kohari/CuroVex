@@ -35,8 +35,8 @@ def get_validation(prediction_id: UUID, db: Session = Depends(get_db)):
     if existing:
         return existing
 
-    drug_name = f"Drug_{prediction.drug_id}" # Mock name lookup
-    disease_name = f"Disease_{prediction.disease_id}" # Mock name lookup
+    drug_name = prediction.drug_name or f"Drug_{prediction.drug_id}"
+    disease_name = prediction.disease_id # disease_id is typically MONDO:XXXX, but clinicaltrials might expect name. For now, use the ID or a lookup if available.
 
     ct_res = check_clinical_trials(drug_name, disease_name)
     pm_res = check_pubmed(drug_name, disease_name)

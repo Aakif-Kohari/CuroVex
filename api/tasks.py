@@ -3,8 +3,15 @@ from api.database import SessionLocal
 from api.models import PredictionRun, Prediction
 from datetime import datetime
 
+import sys
+import os
+
+ml_core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../ml-core"))
+if ml_core_path not in sys.path:
+    sys.path.append(ml_core_path)
+
 try:
-    from ml_core.predict import predict_drugs
+    from predict import predict_drugs
 except ImportError:
     def predict_drugs(disease_id: str, top_k: int, model_path: str, data_dir: str = None, device: str = "cpu"):
         return [{"drug_id": "DB00001", "drug_name": "DummyDrug", "score": 0.99, "rank": 1}]
@@ -34,10 +41,11 @@ def run_batch_predictions(self, disease_id: str, top_k: int, user_id: str = None
         for r in results:
             pred = Prediction(
                 run_id=run.id,
-                drug_id=r["drug_id"],
+                drug_id=str(r["drug_id"]),
+                drug_name=r.get("drug_name"),
                 disease_id=disease_id,
-                score=r["score"],
-                rank=r["rank"]
+                score=float(r["score"]),
+                rank=int(r["rank"])
             )
             db.add(pred)
         

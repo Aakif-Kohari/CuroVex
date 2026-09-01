@@ -8,9 +8,16 @@ from api.models import PredictionRun, Prediction
 from api.schemas import PredictionRunOut
 from api.config import config
 
-# Import predict_drugs from ml-core (mocked/stubbed if missing)
+import sys
+import os
+
+# Append the ml-core directory to sys.path since it has a hyphen in its name
+ml_core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../ml-core"))
+if ml_core_path not in sys.path:
+    sys.path.append(ml_core_path)
+
 try:
-    from ml_core.predict import predict_drugs
+    from predict import predict_drugs
 except ImportError:
     def predict_drugs(disease_id: str, top_k: int, model_path: str, data_dir: str = None, device: str = "cpu") -> list[dict]:
         # Dummy implementation for tests if real one missing
@@ -49,18 +56,15 @@ def get_predictions(
     for r in results:
         pred = Prediction(
             run_id=run.id,
-            drug_id=r["drug_id"],
+            drug_id=str(r["drug_id"]),
+            drug_name=r.get("drug_name"),
             disease_id=disease_id,
-            score=r["score"],
-            rank=r["rank"]
+            score=float(r["score"]),
+            rank=int(r["rank"])
         )
         db.add(pred)
     
     db.commit()
     db.refresh(run)
     
-    # Needs to match schema
-    for r, p in zip(results, run.predictions):
-        p.drug_name = r.get("drug_name")
-        
     return run

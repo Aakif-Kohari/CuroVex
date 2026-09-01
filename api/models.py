@@ -45,6 +45,7 @@ class Prediction(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = Column(UUID(as_uuid=True), ForeignKey("prediction_runs.id"), nullable=False)
     drug_id = Column(String, nullable=False)
+    drug_name = Column(String, nullable=True)
     disease_id = Column(String, nullable=False)
     score = Column(Float, nullable=False)
     rank = Column(Integer, nullable=False)

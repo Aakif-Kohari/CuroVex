@@ -1,73 +1,124 @@
 # CuroVex
 
-> Explainable AI framework for drug repurposing using biomedical knowledge graphs and counterfactual reasoning.
+<p align="center">
+  <em>Explainable AI framework for drug repurposing using biomedical knowledge graphs and counterfactual reasoning.</em>
+</p>
 
-**Status:** In active development — BE Computer Science (Data Science) Final Year Major Project, 2026–2027
+**Status:** Completed (Phases 1 & 2) — BE Computer Science (Data Science) Final Year Major Project, 2026–2027
 
-## What is CuroVex
+---
 
-CuroVex predicts new therapeutic uses for existing drugs by reasoning over a public
-biomedical knowledge graph, then explains *why* it made each prediction two ways: a
-conventional path-based explanation, and a **counterfactual edge-masking** explanation
-that tests whether the explanation actually holds up by removing the evidence and
-checking whether the prediction breaks. No prior system in this space tests its own
-explanations this way — see [`docs/SYSTEM_ARCHITECTURE.md`](docs/SYSTEM_ARCHITECTURE.md)
-for the full novelty case.
+## 🔬 What is CuroVex?
 
-## Architecture
+Finding new uses for existing, FDA-approved drugs (drug repurposing) drastically cuts down research and development time. **CuroVex** is an end-to-end Machine Learning pipeline and web platform that predicts new therapeutic uses for these existing drugs by reasoning over a massive public biomedical knowledge graph.
 
-Six layers: public knowledge graphs → Neo4j → KG embedding + GAT link prediction →
-explainability engine (path-based + counterfactual) → FastAPI backend → Next.js dashboard.
+Unlike other black-box AI tools, CuroVex explains *why* it made each prediction using two methodologies:
+1. **Path-Based Explanations (Baseline):** Highlights the graph connections bridging a drug and a disease.
+2. **Counterfactual Edge-Masking (Novel Contribution):** Systematically removes edges from the explanation subgraph and checks if the prediction breaks. By generating a **fidelity score**, CuroVex *proves* its reasoning holds up under scrutiny—an approach previously unexplored in this domain.
 
-Full breakdown: [`docs/SYSTEM_ARCHITECTURE.md`](docs/SYSTEM_ARCHITECTURE.md)
+---
 
-## Documentation
+## 🛠️ Tech Stack & Architecture
 
-| Doc | Purpose |
+Our system is composed of six distinct layers:
+
+- **Knowledge Graph:** Neo4j (populated via PrimeKG / DRKG)
+- **Machine Learning Core:** PyTorch Geometric (GAT Link Prediction), PyKEEN (Embeddings: TransE, RotatE, ComplEx, DistMult)
+- **Backend API:** FastAPI, Postgres (SQLAlchemy / Alembic), Celery + Redis (Asynchronous Tasks)
+- **Explainability Engine:** Path-based + Novel Counterfactual Masking Modules
+- **Validation Engine:** Automated cross-referencing via ClinicalTrials.gov and PubMed APIs
+- **Frontend Dashboard:** Next.js 14, TailwindCSS, Cytoscape.js (Graph Visualization)
+
+> **Deep Dive:** Read the comprehensive [System Architecture](docs/SYSTEM_ARCHITECTURE.md) and [Database Schema](docs/DATABASE_SCHEMA.md) documentation.
+
+---
+
+## 🚀 Features
+
+- **End-to-End Prediction:** Query a disease and receive a ranked list of candidate drugs in real-time.
+- **Dual Explainability:** View side-by-side comparisons of path-based meta-paths and counterfactual edge-masking fidelity scores.
+- **Interactive Graph UI:** Visualize the drug-disease relationships with our interactive Cytoscape dashboard.
+- **Automated Validation:** Automatically flags whether a predicted pair is actively being studied in ClinicalTrials.gov or mentioned in recent PubMed literature.
+- **Save & Share:** JWT-authenticated user sessions for saving searches and prediction runs.
+
+---
+
+## 📖 Documentation Directory
+
+| Document | Description |
 |---|---|
-| [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | Layers, tech stack, data flow |
-| [Product Backlog](docs/PRODUCT_BACKLOG.md) | Epics, user stories, priorities |
-| [Database Schema](docs/DATABASE_SCHEMA.md) | Neo4j graph schema + Postgres schema |
-| [Roadmap](ROADMAP.md) | Two-semester phase plan |
-| [Kanban setup](docs/KANBAN.md) | GitHub Projects board structure |
-| [Deployment checklist](docs/DEPLOYMENT_CHECKLIST.md) | Free-tier deploy steps |
-| [Contributing](CONTRIBUTING.md) | Dev environment setup, branch/PR rules |
+| [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | High-level overview of layers, tech stack, and data flow. |
+| [Product Backlog](docs/PRODUCT_BACKLOG.md) | Epics, user stories, and feature tracking. |
+| [Database Schema](docs/DATABASE_SCHEMA.md) | Neo4j graph schema and relational Postgres models. |
+| [Roadmap](ROADMAP.md) | Our two-semester execution plan. |
+| [Kanban Workflow](docs/KANBAN.md) | GitHub Projects board rules and sprint rhythm. |
+| [Deployment Guide](docs/DEPLOYMENT_CHECKLIST.md) | Instructions for deploying the stack on free-tier cloud providers. |
+| [Contributing Guide](CONTRIBUTING.md) | Setup instructions for local development and branch rules. |
 
-Formal submission documents (Project Charter, Product Vision, SRS, Test Plan) are kept
-outside the repo as faculty deliverables.
+*(Note: Formal submission documents including the Project Charter, Product Vision, SRS, and Test Plan are submitted separately as faculty deliverables).*
 
-## Getting started
+---
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full setup guide. Quick version:
+## 💻 Getting Started (Local Development)
 
+To spin up the entire CuroVex ecosystem on your local machine:
+
+### 1. Clone the repository
 ```bash
 git clone https://github.com/Aakif-Kohari/CuroVex.git
 cd CuroVex
+```
+
+### 2. Environment Configuration
+```bash
 cp .env.example .env
+# Edit .env with any necessary overrides (e.g., SECRET_KEY, NEO4J credentials)
+```
+
+### 3. Spin up the Database & Redis via Docker
+```bash
 docker compose up -d
 ```
 
-## Repository structure
+### 4. Run the Pipeline & API
+```bash
+# Setup Python environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+pip install -r requirements.txt
 
+# Apply Postgres Migrations
+cd api
+alembic upgrade head
+cd ..
+
+# Run Celery Worker (In a separate terminal)
+celery -A api.celery_app worker --loglevel=info
+
+# Run FastAPI Backend
+uvicorn api.main:app --reload
 ```
-curovex/
-├── kg-pipeline/      # ETL: PrimeKG/DRKG ingestion → Neo4j
-├── ml-core/          # PyKEEN embeddings, GAT model, training scripts
-├── explainability/   # path-based + counterfactual masking modules
-├── validation/       # ClinicalTrials.gov / PubMed cross-reference scripts
-├── api/              # FastAPI app, Celery tasks, Postgres models
-├── dashboard/        # Next.js frontend
-├── docs/             # architecture, backlog, schema, roadmap, etc.
-└── .github/workflows/  # CI/CD
+
+### 5. Start the Frontend Dashboard
+```bash
+cd dashboard
+npm install
+npm run dev
 ```
 
-## Team
+Visit `http://localhost:3000` to interact with the CuroVex dashboard!
 
-- [Aakif Kohari](https://github.com/Aakif-Kohari)
-- [Usaid Duldule](https://github.com/Usaid582000)
-- [Tabeer Ansari](https://github.com/Ansari-Tabeer)
-- [Mohd Nooh Rais](https://github.com/RAISnooh09)
+---
 
-## License
+## 👥 Meet the Team
 
-Apache License 2.0 — see [LICENSE](LICENSE).
+- **Aakif Kohari** - [GitHub](https://github.com/Aakif-Kohari)
+- **Usaid Duldule** - [GitHub](https://github.com/Usaid582000)
+- **Tabeer Ansari** - [GitHub](https://github.com/Ansari-Tabeer)
+- **Mohd Nooh Rais** - [GitHub](https://github.com/RAISnooh09)
+
+---
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more information.

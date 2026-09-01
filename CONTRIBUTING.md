@@ -18,7 +18,7 @@ cp .env.example .env          # fill in local secrets — never commit .env
 docker compose up -d          # starts Neo4j, Postgres, Redis
 ```
 
-Backend (once api/ has code):
+Backend:
 ```bash
 cd api
 python -m venv .venv && source .venv/bin/activate
@@ -26,7 +26,7 @@ pip install -r requirements.txt --break-system-packages
 uvicorn main:app --reload
 ```
 
-Frontend (once dashboard/ has code):
+Frontend:
 ```bash
 cd dashboard
 pnpm install

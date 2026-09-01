@@ -24,7 +24,10 @@ def check_clinical_trials(drug_name: str, disease_name: str) -> ClinicalTrialRes
     Query ClinicalTrials.gov v2 API for trials involving the given drug and disease.
     """
     base_url = os.getenv("CLINICALTRIALS_API_BASE", "https://clinicaltrials.gov/api/v2")
-    evidence_url = f"https://clinicaltrials.gov/search?intr={drug_name}&cond={disease_name}"
+    import urllib.parse
+    enc_drug = urllib.parse.quote_plus(drug_name)
+    enc_disease = urllib.parse.quote_plus(disease_name)
+    evidence_url = f"https://clinicaltrials.gov/search?intr={enc_drug}&cond={enc_disease}"
     
     url = f"{base_url}/studies"
     params = {

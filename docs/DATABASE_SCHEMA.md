@@ -67,6 +67,7 @@ erDiagram
         uuid id PK
         uuid run_id FK
         string drug_id
+        string drug_name
         string disease_id
         float score
         int rank

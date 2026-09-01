@@ -52,9 +52,11 @@ class ValidationOut(BaseModel):
     class Config:
         from_attributes = True
 
+from pydantic import BaseModel, EmailStr, Field
+
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=8, description="Password must be at least 8 characters")
 
 class UserLogin(BaseModel):
     email: EmailStr

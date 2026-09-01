@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str | None = None
     
     REDIS_URL: str = "redis://localhost:6379/0"
-    SECRET_KEY: str = "curovex_secret_key_dev"
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "curovex_secret_key_dev")
     CORS_ORIGINS: str = "http://localhost:3000"
     
     NEO4J_URI: str = "bolt://localhost:7687"
