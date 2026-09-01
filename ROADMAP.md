@@ -12,13 +12,13 @@ Nothing after this phase works until this phase works.
 - [x] 1.2 — Write `kg-pipeline/download_primekg.py`: downloads PrimeKG source files and saves them locally.
 - [x] 1.3 — Write `kg-pipeline/normalize_schema.py`: maps PrimeKG's raw columns onto the node/relationship schema defined in `docs/DATABASE_SCHEMA.md`.
 - [x] 1.4 — Write `kg-pipeline/load_to_neo4j.py`: loads the normalized data into Neo4j via the Neo4j Python driver, idempotently (safe to re-run).
-- [ ] 1.5 — Write `kg-pipeline/crosscheck_drkg.py`: downloads DRKG and compares entity/relation counts against the loaded PrimeKG graph, prints a discrepancy report.
-- [ ] 1.6 — Write `ml-core/benchmark_embeddings.py`: uses PyKEEN to train and score TransE, RotatE, ComplEx, DistMult on the graph; logs results to MLflow; prints the best model by AUPRC.
-- [ ] 1.7 — Write `ml-core/train_gat.py`: trains a PyTorch Geometric GAT link-prediction model on top of the best embedding from 1.6.
-- [ ] 1.8 — Write `ml-core/predict.py`: given a `disease_id`, returns a ranked list of candidate drugs with scores.
-- [ ] 1.9 — Write `explainability/path_based.py`: given a `(drug_id, disease_id)` pair, returns the meta-path(s) connecting them in the graph.
-- [ ] 1.10 — Write unit tests for 1.4, 1.6, 1.8, 1.9 (`pytest`, in each module's own test file).
-- [ ] 1.11 — Milestone check: manually run disease query → ranked drugs → path explanation end-to-end on 2–3 known diseases; sanity-check the output makes sense.
+- [x] 1.5 — Write `kg-pipeline/crosscheck_drkg.py`: downloads DRKG and compares entity/relation counts against the loaded PrimeKG graph, prints a discrepancy report.
+- [x] 1.6 — Write `ml-core/benchmark_embeddings.py`: uses PyKEEN to train and score TransE, RotatE, ComplEx, DistMult on the graph; logs results to MLflow; prints the best model by AUPRC.
+- [x] 1.7 — Write `ml-core/train_gat.py`: trains a PyTorch Geometric GAT link-prediction model on top of the best embedding from 1.6.
+- [x] 1.8 — Write `ml-core/predict.py`: given a `disease_id`, returns a ranked list of candidate drugs with scores.
+- [x] 1.9 — Write `explainability/path_based.py`: given a `(drug_id, disease_id)` pair, returns the meta-path(s) connecting them in the graph.
+- [x] 1.10 — Write unit tests for 1.4, 1.6, 1.8, 1.9 (`pytest`, in each module's own test file).
+- [x] 1.11 — Milestone check: manually run disease query → ranked drugs → path explanation end-to-end on 2–3 known diseases; sanity-check the output makes sense.
 
 **Phase 1 exit criteria:** the pipeline runs end to end from the command line. No API, no
 frontend yet — that's Phase 2.
