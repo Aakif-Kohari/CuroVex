@@ -1,0 +1,123 @@
+# .github/workflows/train-model.yml
+name: Train GAT model (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      exclude_rel_types:
+        description: 'Must match what you loaded into Aura (KG ETL workflow input)'
+        required: false
+        default: 'INTERACTS_WITH,CAUSES_SIDE_EFFECT'
+      embedding_dim:
+        description: 'PyKEEN embedding dimension'
+        required: false
+        default: '128'
+      embedding_epochs:
+        description: 'Epochs per embedding model (4 models: TransE/RotatE/ComplEx/DistMult) — kept low, CPU-only runner'
+        required: false
+        default: '30'
+      gat_epochs:
+        description: 'GAT training epochs'
+        required: false
+        default: '150'
+      gat_hidden_dim:
+        description: 'GAT hidden dimension'
+        required: false
+        default: '128'
+      publish_release:
+        description: 'Auto-publish artifacts to the "artifacts-latest" GitHub Release (overwrites it)'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: gat-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330   # GitHub hard-caps hosted-runner jobs at 360; this leaves room to fail cleanly first
+    defaults:
+      run:
+        working-directory: ./ml-core
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install CPU-only torch (avoids ~2GB of unused CUDA downloads)
+        run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Install remaining dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore normalized graph (produced by the KG ETL workflow)
+        uses: actions/cache/restore@v4
+        with:
+          path: kg-pipeline/data/normalized
+          key: primekg-normalized-
+          restore-keys: primekg-normalized-
+
+      - name: Verify normalized data exists
+        run: |
+          test -f ../kg-pipeline/data/normalized/nodes.csv || { echo "::error::No cached normalized graph found — run the KG ETL workflow first."; exit 1; }
+          test -f ../kg-pipeline/data/normalized/edges.csv || { echo "::error::No cached normalized graph found — run the KG ETL workflow first."; exit 1; }
+
+      - name: Filter edges to match the Aura subset
+        env:
+          EXCLUDE_REL_TYPES: ${{ inputs.exclude_rel_types }}
+        run: |
+          python - <<'PY'
+          import pandas as pd, os, shutil
+          exclude = [t.strip() for t in os.environ.get("EXCLUDE_REL_TYPES", "").split(",") if t.strip()]
+          edges = pd.read_csv("../kg-pipeline/data/normalized/edges.csv")
+          before = len(edges)
+          if exclude:
+              edges = edges[~edges["type"].isin(exclude)]
+          os.makedirs("training-data", exist_ok=True)
+          edges.to_csv("training-data/edges.csv", index=False)
+          shutil.copy("../kg-pipeline/data/normalized/nodes.csv", "training-data/nodes.csv")
+          print(f"Filtered edges: {before} -> {len(edges)} (excluded: {exclude})")
+          PY
+
+      - name: Cache embeddings (skip re-benchmarking on reruns)
+        id: cache-embeddings
+        uses: actions/cache@v4
+        with:
+          path: ml-core/artifacts/best_embeddings.pt
+          key: gat-embeddings-${{ inputs.embedding_dim }}-${{ inputs.embedding_epochs }}-${{ hashFiles('ml-core/training-data/edges.csv') }}
+
+      - name: Benchmark KG embeddings
+        if: steps.cache-embeddings.outputs.cache-hit != 'true'
+        run: >
+          python benchmark_embeddings.py
+          --embedding-dim "${{ inputs.embedding_dim }}"
+          --epochs "${{ inputs.embedding_epochs }}"
+          --data-dir training-data
+          --device cpu
+
+      - name: Train GAT link predictor
+        run: >
+          python train_gat.py
+          --epochs "${{ inputs.gat_epochs }}"
+          --hidden-dim "${{ inputs.gat_hidden_dim }}"
+          --data-dir training-data
+          --device cpu
+
+      - name: Package artifacts for the API to consume
+        run: |
+          mkdir -p package
+          cp artifacts/best_embeddings.pt package/
+          cp artifacts/gat_link_predictor.pt package/
+          cp training-data/nodes.csv package/
+          cp training-data/edges.csv package/
+          tar -czf curovex-artifacts.tar.gz -C package .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: curovex-artifacts
+          path: ml-core/curovex-artifacts.tar.gz
+          retention-days: 90

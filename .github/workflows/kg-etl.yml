@@ -1,0 +1,67 @@
+name: KG ETL (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      exclude_rel_types:
+        description: 'Comma-separated relationship types to skip (Aura Free cap = 400k rels)'
+        required: false
+        default: 'INTERACTS_WITH,CAUSES_SIDE_EFFECT'
+      batch_size:
+        description: 'Neo4j load batch size'
+        required: false
+        default: '2000'
+
+concurrency:
+  group: kg-etl
+  cancel-in-progress: false
+
+jobs:
+  etl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: ./kg-pipeline
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Cache raw PrimeKG download
+        id: cache-raw
+        uses: actions/cache@v4
+        with:
+          path: kg-pipeline/data/raw/kg.csv
+          key: primekg-raw-v1
+
+      - name: Download PrimeKG
+        if: steps.cache-raw.outputs.cache-hit != 'true'
+        run: python download_primekg.py
+
+      - name: Cache normalized graph
+        id: cache-normalized
+        uses: actions/cache@v4
+        with:
+          path: kg-pipeline/data/normalized
+          key: primekg-normalized-${{ hashFiles('kg-pipeline/normalize_schema.py', 'kg-pipeline/data/raw/kg.csv') }}
+
+      - name: Normalize schema
+        if: steps.cache-normalized.outputs.cache-hit != 'true'
+        run: python normalize_schema.py
+
+      - name: Load into Neo4j (Aura)
+        env:
+          NEO4J_URI: ${{ secrets.NEO4J_URI }}
+          NEO4J_USER: ${{ secrets.NEO4J_USER }}
+          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
+        run: >
+          python load_to_neo4j.py
+          --batch-size "${{ inputs.batch_size }}"
+          --exclude-rel-types "${{ inputs.exclude_rel_types }}"
