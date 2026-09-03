@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 import torch
 from pathlib import Path
+from unittest.mock import MagicMock
 from train_gat import GATLinkPredictor
 
 @pytest.fixture
@@ -45,4 +46,5 @@ def mock_embeddings():
 @pytest.fixture
 def mock_gat_model():
     model = GATLinkPredictor(in_dim=16, hidden_dim=16, out_dim=16, heads=2)
+    model.load_state_dict = MagicMock()
     return model

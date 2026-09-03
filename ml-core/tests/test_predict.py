@@ -26,7 +26,7 @@ class TestPredictDrugs:
     def test_returns_ranked_list(self, mock_gat_cls, mock_torch_load, sample_triples_csv, mock_embeddings, mock_gat_model):
         mock_torch_load.side_effect = [mock_embeddings, {}]
         mock_gat_cls.return_value = mock_gat_model
-        mock_gat_model.load_state_dict = MagicMock()
+        # Removed: mock_gat_model.load_state_dict = MagicMock() -> Handled by conftest.py fixture
         
         # Override encode to return the mocked embeddings directly for predictability
         mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
