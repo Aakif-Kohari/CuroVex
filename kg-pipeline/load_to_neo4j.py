@@ -54,6 +54,20 @@ LABEL_PROPERTY_MAP: dict[str, dict[str, str]] = {
 # Default batch size for UNWIND operations
 DEFAULT_BATCH_SIZE = 1000
 
+# ---------------------------------------------------------------------------
+# Relationship endpoint labels for indexed MATCH queries.
+# Since all Gene|Protein nodes are given the :Gene label during node load,
+# we use :Gene here to leverage the uniqueness constraint index.
+# ---------------------------------------------------------------------------
+REL_TYPE_ENDPOINT_LABELS: dict[str, tuple[str, str]] = {
+    "TREATS": ("Drug", "Disease"),
+    "TARGETS": ("Drug", "Gene"),
+    "ASSOCIATED_WITH": ("Gene", "Disease"),
+    "PART_OF_PATHWAY": ("Gene", "Pathway"),
+    "CAUSES_SIDE_EFFECT": ("Drug", "SideEffect"),
+    "INTERACTS_WITH": ("Gene", "Gene"),
+}
+
 
 def get_neo4j_config() -> dict[str, str]:
     """Read Neo4j connection details from environment / .env file."""
@@ -146,15 +160,15 @@ def build_node_merge_query(labels: str) -> str:
 def build_edge_merge_query(rel_type: str) -> str:
     """Return a Cypher UNWIND/MERGE query for relationships of *rel_type*.
 
-    Matches source and target nodes by ``id`` (node_index), then MERGEs the
-    relationship.  Uses a label-less MATCH since nodes may have multiple
-    labels (Gene|Protein).  The uniqueness constraint on ``id`` across all
-    labels keeps this fast.
+    Matches source and target nodes by ``id`` (node_index) using their
+    specific labels so Neo4j can use the uniqueness constraint indexes
+    instead of doing full node scans.
     """
+    src_label, tgt_label = REL_TYPE_ENDPOINT_LABELS[rel_type]
     return (
         "UNWIND $batch AS row "
-        "MATCH (src {id: row.source_index}) "
-        "MATCH (tgt {id: row.target_index}) "
+        f"MATCH (src:{src_label} {{id: row.source_index}}) "
+        f"MATCH (tgt:{tgt_label} {{id: row.target_index}}) "
         f"MERGE (src)-[r:{rel_type}]->(tgt) "
         "SET r.source = 'PrimeKG'"
     )
