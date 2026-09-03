@@ -1,6 +1,6 @@
 neo4j>=5.0.0
 python-dotenv>=1.0.0
-torch>=2.0.0
+torch>=2.1.0
 torch-geometric>=2.4.0
 pandas>=2.0.0
 numpy>=1.24.0
