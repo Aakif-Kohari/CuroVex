@@ -4,7 +4,7 @@
   <em>Explainable AI framework for drug repurposing using biomedical knowledge graphs and counterfactual reasoning.</em>
 </p>
 
-**Status:** Completed (Phases 1 & 2) — BE Computer Science (Data Science) Final Year Major Project, 2026–2027
+**Status:** Phases 1 & 2 implemented — testing and deployment in progress — BE Computer Science (Data Science) Final Year Major Project, 2026–2027
 
 ---
 

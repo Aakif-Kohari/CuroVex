@@ -9,7 +9,7 @@ working demo), **P1** (needed for the "production-ready" bar), **P2** (stretch /
 | KG-1 | As a developer, I can run one script to download and normalize PrimeKG into a common schema | P0 | ✅ Done |
 | KG-2 | As a developer, I can load the normalized graph into Neo4j with a single command | P0 | ✅ Done |
 | KG-3 | As a developer, I can cross-check node/relation counts against DRKG for validation | P1 | ✅ Done |
-| KG-4 | As a developer, I can version and diff graph snapshots across runs | P1 | ✅ Done |
+| KG-4 | As a developer, I can version and diff graph snapshots across runs | P1 | 🚧 Pending |
 | KG-5 | As a developer, I can incrementally update the graph without a full reload | P2 | ✅ Done |
 
 ## Epic 2 — KG embedding & link prediction
@@ -28,7 +28,7 @@ working demo), **P1** (needed for the "production-ready" bar), **P2** (stretch /
 | XAI-2 | As a researcher, I can run counterfactual edge-masking on a prediction and get a fidelity score | P0 | ✅ Done |
 | XAI-3 | As a researcher, I can compare path-based vs. counterfactual explanations on the same prediction | P1 | ✅ Done |
 | XAI-4 | As a researcher, I can benchmark fidelity and sparsity across both methods on a test set | P1 | ✅ Done |
-| XAI-5 | As a user, I can see a plain-language summary of why a drug was recommended | P2 | ✅ Done |
+| XAI-5 | As a user, I can see a plain-language summary of why a drug was recommended | P2 | 🚧 Pending |
 
 ## Epic 4 — Validation & evidence layer
 | ID | User story | Priority | Status |
@@ -44,7 +44,7 @@ working demo), **P1** (needed for the "production-ready" bar), **P2** (stretch /
 | API-2 | As a frontend, I can request an explanation for a prediction via `GET /explanations/{prediction_id}` | P0 | ✅ Done |
 | API-3 | As a user, I can register/log in and my searches are saved | P1 | ✅ Done |
 | API-4 | As a developer, long-running jobs (batch predictions) run via Celery and don't block requests | P1 | ✅ Done |
-| API-5 | As a developer, all endpoints are documented via auto-generated OpenAPI/Swagger | P1 | 🚧 Pending |
+| API-5 | As a developer, all endpoints are documented via auto-generated OpenAPI/Swagger | P1 | ✅ Done |
 
 ## Epic 6 — Frontend dashboard
 | ID | User story | Priority | Status |
@@ -53,7 +53,7 @@ working demo), **P1** (needed for the "production-ready" bar), **P2** (stretch /
 | UI-2 | As a user, I can click a candidate and see its explanation subgraph visually | P0 | ✅ Done |
 | UI-3 | As a user, I can toggle between path-based and counterfactual explanation views | P1 | ✅ Done |
 | UI-4 | As a user, I can see validation evidence (trials/literature) alongside a prediction | P1 | ✅ Done |
-| UI-5 | As a user, I can save and revisit past searches | P2 | ✅ Done |
+| UI-5 | As a user, I can save and revisit past searches | P2 | 🚧 Pending |
 
 ## Epic 7 — DevOps & deployment
 | ID | User story | Priority | Status |
@@ -68,5 +68,5 @@ working demo), **P1** (needed for the "production-ready" bar), **P2** (stretch /
 |---|---|---|---|
 | DOC-1 | As a new contributor, I can follow the onboarding guide to get a working dev environment | P0 | ✅ Done |
 | DOC-2 | As a reviewer, I can read the SRS and architecture doc to understand scope | P0 | ✅ Done |
-| DOC-3 | As a developer, unit tests cover the embedding, GAT, and counterfactual modules | P1 | 🚧 Pending |
-| DOC-4 | As a developer, integration tests cover the API endpoints end-to-end | P1 | 🚧 Pending |
+| DOC-3 | As a developer, unit tests cover the embedding, GAT, and counterfactual modules | P1 | ✅ Done |
+| DOC-4 | As a developer, integration tests cover the API endpoints end-to-end | P1 | ✅ Done |
