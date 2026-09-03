@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { Search } from 'lucide-react';
+import { useState, useCallback } from "react";
+import { Search } from "lucide-react";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
   isLoading?: boolean;
 }
 
-export default function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
-  const [query, setQuery] = useState('');
+export default function SearchBar({
+  onSearch,
+  isLoading = false,
+}: SearchBarProps) {
+  const [query, setQuery] = useState("");
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -18,7 +21,7 @@ export default function SearchBar({ onSearch, isLoading = false }: SearchBarProp
         onSearch(query.trim());
       }
     },
-    [query, onSearch]
+    [query, onSearch],
   );
 
   return (
@@ -48,7 +51,7 @@ export default function SearchBar({ onSearch, isLoading = false }: SearchBarProp
                 Searching
               </span>
             ) : (
-              'Search'
+              "Search"
             )}
           </button>
         </div>

@@ -1,12 +1,14 @@
-'use client';
+"use client";
 
 interface SkeletonProps {
   className?: string;
 }
 
-export function SkeletonCard({ className = '' }: SkeletonProps) {
+export function SkeletonCard({ className = "" }: SkeletonProps) {
   return (
-    <div className={`animate-pulse bg-navy-800/50 border border-navy-700 rounded-2xl p-6 ${className}`}>
+    <div
+      className={`animate-pulse bg-navy-800/50 border border-navy-700 rounded-2xl p-6 ${className}`}
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="w-10 h-10 bg-navy-700 rounded-xl" />
         <div className="w-20 h-6 bg-navy-700 rounded-full" />
@@ -23,9 +25,11 @@ export function SkeletonCard({ className = '' }: SkeletonProps) {
   );
 }
 
-export function SkeletonGraph({ className = '' }: SkeletonProps) {
+export function SkeletonGraph({ className = "" }: SkeletonProps) {
   return (
-    <div className={`animate-pulse bg-navy-800/50 border border-navy-700 rounded-2xl p-6 ${className}`}>
+    <div
+      className={`animate-pulse bg-navy-800/50 border border-navy-700 rounded-2xl p-6 ${className}`}
+    >
       <div className="h-96 bg-navy-700 rounded-xl flex items-center justify-center">
         <div className="text-slate-600 text-sm">Loading graph...</div>
       </div>
@@ -33,7 +37,10 @@ export function SkeletonGraph({ className = '' }: SkeletonProps) {
   );
 }
 
-export function SkeletonText({ lines = 3, className = '' }: SkeletonProps & { lines?: number }) {
+export function SkeletonText({
+  lines = 3,
+  className = "",
+}: SkeletonProps & { lines?: number }) {
   return (
     <div className={`animate-pulse space-y-2 ${className}`}>
       {Array.from({ length: lines }).map((_, i) => (

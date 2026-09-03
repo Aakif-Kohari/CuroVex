@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 logger = logging.getLogger(__name__)
 
+
 class MLLoader:
     _instance = None
 
@@ -34,7 +35,7 @@ class MLLoader:
             return
 
         logger.info("Loading ML model and artifacts (first request)...")
-        
+
         # Stubbed loading for API purposes
         self._model = f"Model loaded from {self._model_path}"
         self._data = f"Data loaded from {self._data_dir}"
@@ -59,5 +60,6 @@ class MLLoader:
     def get_id_maps(self):
         self._ensure_loaded()
         return self._id_maps
+
 
 ml_loader = MLLoader()

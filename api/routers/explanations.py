@@ -9,6 +9,7 @@ from api.schemas import ExplanationResponse
 
 router = APIRouter()
 
+
 @router.get("/{prediction_id}", response_model=ExplanationResponse)
 def get_explanations(prediction_id: UUID, db: Session = Depends(get_db)):
     # LAZY IMPORTS: Only load heavy AI code when this endpoint is hit

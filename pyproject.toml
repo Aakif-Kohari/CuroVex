@@ -11,3 +11,8 @@ ignore = [
 markers = [
     "integration: requires live Neo4j — skipped in unit CI",
 ]
+filterwarnings = [
+    "ignore:.*'crypt' is deprecated.*:DeprecationWarning",
+    "ignore:.*Using `httpx` with `starlette.testclient` is deprecated.*:DeprecationWarning",
+    "ignore:.*datetime.datetime.utcnow.*:DeprecationWarning",
+]

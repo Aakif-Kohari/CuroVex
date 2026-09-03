@@ -1,8 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, ExternalLink, FlaskConical, BookOpen } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  FlaskConical,
+  BookOpen,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Trial {
   nctId: string;
@@ -25,7 +31,11 @@ interface EvidencePanelProps {
   evidenceUrl?: string | null;
 }
 
-export default function EvidencePanel({ trials = [], articles = [], evidenceUrl }: EvidencePanelProps) {
+export default function EvidencePanel({
+  trials = [],
+  articles = [],
+  evidenceUrl,
+}: EvidencePanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasEvidence = trials.length > 0 || articles.length > 0;
 
@@ -51,7 +61,7 @@ export default function EvidencePanel({ trials = [], articles = [], evidenceUrl 
         {isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
@@ -66,9 +76,14 @@ export default function EvidencePanel({ trials = [], articles = [], evidenceUrl 
                   </h4>
                   <div className="space-y-2">
                     {trials.map((trial) => (
-                      <div key={trial.nctId} className="text-xs bg-navy-800/50 rounded-lg p-3 border border-navy-700">
+                      <div
+                        key={trial.nctId}
+                        className="text-xs bg-navy-800/50 rounded-lg p-3 border border-navy-700"
+                      >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="text-slate-300 leading-relaxed">{trial.title}</p>
+                          <p className="text-slate-300 leading-relaxed">
+                            {trial.title}
+                          </p>
                           <a
                             href={`https://clinicaltrials.gov/study/${trial.nctId}`}
                             target="_blank"
@@ -98,9 +113,14 @@ export default function EvidencePanel({ trials = [], articles = [], evidenceUrl 
                   </h4>
                   <div className="space-y-2">
                     {articles.map((article) => (
-                      <div key={article.pmid} className="text-xs bg-navy-800/50 rounded-lg p-3 border border-navy-700">
+                      <div
+                        key={article.pmid}
+                        className="text-xs bg-navy-800/50 rounded-lg p-3 border border-navy-700"
+                      >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="text-slate-300 leading-relaxed">{article.title}</p>
+                          <p className="text-slate-300 leading-relaxed">
+                            {article.title}
+                          </p>
                           <a
                             href={`https://pubmed.ncbi.nlm.nih.gov/${article.pmid}`}
                             target="_blank"

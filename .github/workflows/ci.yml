@@ -59,7 +59,7 @@ jobs:
         run: pnpm lint
 
       - name: Run tests
-        run: pnpm test -- --ci
+        run: npx jest --coverage
 
   ml-core-test:
     runs-on: ubuntu-latest

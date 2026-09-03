@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -12,16 +12,20 @@ from api.schemas import PredictionRunOut
 
 router = APIRouter()
 
+
 @router.get("/{disease_id}", response_model=PredictionRunOut)
 def get_predictions(disease_id: str, top_k: int = 20, db: Session = Depends(get_db)):
     # LAZY IMPORT: Only load heavy ML code when this specific endpoint is hit
-    ml_core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../ml-core"))
+    ml_core_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../ml-core")
+    )
     if ml_core_path not in sys.path:
         sys.path.append(ml_core_path)
 
     try:
         from predict import predict_drugs
     except ImportError:
+
         def predict_drugs(
             disease_id: str,
             top_k: int,
@@ -31,7 +35,12 @@ def get_predictions(disease_id: str, top_k: int = 20, db: Session = Depends(get_
         ) -> list[dict]:
             # Dummy implementation for tests if real one missing
             return [
-                {"drug_id": "DB00001", "drug_name": "DummyDrug", "score": 0.99, "rank": 1}
+                {
+                    "drug_id": "DB00001",
+                    "drug_name": "DummyDrug",
+                    "score": 0.99,
+                    "rank": 1,
+                }
             ]
 
     # 1. Run prediction
@@ -49,7 +58,7 @@ def get_predictions(disease_id: str, top_k: int = 20, db: Session = Depends(get_
     run = PredictionRun(
         disease_id=disease_id,
         model_version="1.0",  # Could read from ml_loader
-        completed_at=datetime.utcnow(),
+        completed_at=datetime.now(timezone.utc),
     )
     db.add(run)
     db.commit()

@@ -9,8 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
-        teal: { 500: '#14b8a6', 400: '#2dd4bf' },
+        navy: { 900: "#0f172a", 800: "#1e293b", 700: "#334155" },
+        teal: { 500: "#14b8a6", 400: "#2dd4bf" },
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

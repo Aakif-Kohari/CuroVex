@@ -2,10 +2,12 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class PredictionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     drug_id: str
     disease_id: str
@@ -13,11 +15,10 @@ class PredictionOut(BaseModel):
     score: float
     rank: int
 
-    class Config:
-        from_attributes = True
-
 
 class PredictionRunOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     disease_id: str
     model_version: str
@@ -25,41 +26,32 @@ class PredictionRunOut(BaseModel):
     completed_at: datetime | None = None
     predictions: list[PredictionOut] = []
 
-    class Config:
-        from_attributes = True
-
 
 class ExplanationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     prediction_id: UUID
     method: str
     fidelity_score: float | None = None
     subgraph: Any
 
-    class Config:
-        from_attributes = True
-
 
 class ExplanationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     prediction_id: UUID
     explanations: list[ExplanationOut]
 
-    class Config:
-        from_attributes = True
-
 
 class ValidationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     prediction_id: UUID
     has_clinical_trial: bool
     has_literature_support: bool
     evidence_url: str | None = None
-
-    class Config:
-        from_attributes = True
-
-
-from pydantic import BaseModel, Field
 
 
 class UserCreate(BaseModel):

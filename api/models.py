@@ -1,6 +1,15 @@
 import uuid
 
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, JSON
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -78,7 +87,7 @@ class Explanation(Base):
     )
     method = Column(String, nullable=False)
     fidelity_score = Column(Float, nullable=True)
-    
+
     # CHANGED: Use generic JSON instead of PostgreSQL-specific JSONB
     subgraph = Column(JSON, nullable=False)
 

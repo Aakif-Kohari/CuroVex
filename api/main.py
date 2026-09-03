@@ -11,6 +11,7 @@ from api.schemas import HealthResponse
 
 logging.basicConfig(level=logging.INFO)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Just register paths, DO NOT load heavy models here.

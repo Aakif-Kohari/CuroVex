@@ -1,13 +1,16 @@
-'use client';
+"use client";
 
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle } from "lucide-react";
 
 interface ValidationBadgeProps {
   hasClinicalTrial: boolean;
   hasLiterature: boolean;
 }
 
-export default function ValidationBadge({ hasClinicalTrial, hasLiterature }: ValidationBadgeProps) {
+export default function ValidationBadge({
+  hasClinicalTrial,
+  hasLiterature,
+}: ValidationBadgeProps) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {hasClinicalTrial ? (

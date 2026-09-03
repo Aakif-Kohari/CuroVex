@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import { Explanation } from '@/lib/types';
+import { useMemo } from "react";
+import { Explanation } from "@/lib/types";
 
 // Lazy import cytoscape to avoid SSR issues
 let CytoscapeComponent: any = null;
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   try {
-    CytoscapeComponent = require('react-cytoscapejs').default;
+    CytoscapeComponent = require("react-cytoscapejs").default;
   } catch {
     // Will render fallback
   }
@@ -18,27 +18,27 @@ interface SubgraphViewerProps {
 }
 
 const labelColors: Record<string, string> = {
-  Drug: '#3b82f6',       // blue
-  Disease: '#ef4444',    // red
-  Gene: '#22c55e',       // green
-  Protein: '#a855f7',    // purple
-  Pathway: '#f97316',    // orange
-  SideEffect: '#eab308', // yellow
+  Drug: "#3b82f6", // blue
+  Disease: "#ef4444", // red
+  Gene: "#22c55e", // green
+  Protein: "#a855f7", // purple
+  Pathway: "#f97316", // orange
+  SideEffect: "#eab308", // yellow
 };
 
 function getNodeColor(labels: string[]): string {
   for (const label of labels) {
     if (labelColors[label]) return labelColors[label];
   }
-  return '#64748b'; // slate default
+  return "#64748b"; // slate default
 }
 
 function getEdgeColor(fidelity?: number): string {
-  if (fidelity === undefined || fidelity === null) return '#475569';
+  if (fidelity === undefined || fidelity === null) return "#475569";
   const abs = Math.abs(fidelity);
-  if (abs >= 0.5) return '#ef4444';  // red for high impact
-  if (abs >= 0.2) return '#f97316';  // orange for medium
-  return '#64748b';                   // gray for low
+  if (abs >= 0.5) return "#ef4444"; // red for high impact
+  if (abs >= 0.2) return "#f97316"; // orange for medium
+  return "#64748b"; // gray for low
 }
 
 function getEdgeWidth(fidelity?: number): number {
@@ -66,7 +66,7 @@ export default function SubgraphViewer({ explanation }: SubgraphViewerProps) {
         nodeLabels: node.labels || [],
       },
       style: {
-        'background-color': getNodeColor(node.labels || []),
+        "background-color": getNodeColor(node.labels || []),
       },
     }));
 
@@ -78,12 +78,12 @@ export default function SubgraphViewer({ explanation }: SubgraphViewerProps) {
           id: `e${idx}`,
           source: String(edge.source_id),
           target: String(edge.target_id),
-          label: edge.type || '',
+          label: edge.type || "",
           fidelity,
         },
         style: {
-          'line-color': getEdgeColor(fidelity),
-          'target-arrow-color': getEdgeColor(fidelity),
+          "line-color": getEdgeColor(fidelity),
+          "target-arrow-color": getEdgeColor(fidelity),
           width: getEdgeWidth(fidelity),
         },
       };
@@ -95,40 +95,42 @@ export default function SubgraphViewer({ explanation }: SubgraphViewerProps) {
   const stylesheet = useMemo(
     () => [
       {
-        selector: 'node',
+        selector: "node",
         style: {
-          label: 'data(label)',
-          'text-valign': 'bottom' as const,
-          'text-halign': 'center' as const,
-          'font-size': '10px',
-          color: '#cbd5e1',
-          'text-margin-y': 6,
+          label: "data(label)",
+          "text-valign": "bottom" as const,
+          "text-halign": "center" as const,
+          "font-size": "10px",
+          color: "#cbd5e1",
+          "text-margin-y": 6,
           width: 30,
           height: 30,
-          'border-width': 2,
-          'border-color': '#1e293b',
+          "border-width": 2,
+          "border-color": "#1e293b",
         },
       },
       {
-        selector: 'edge',
+        selector: "edge",
         style: {
-          label: 'data(label)',
-          'font-size': '8px',
-          color: '#94a3b8',
-          'text-rotation': 'autorotate' as const,
-          'curve-style': 'bezier' as const,
-          'target-arrow-shape': 'triangle' as const,
+          label: "data(label)",
+          "font-size": "8px",
+          color: "#94a3b8",
+          "text-rotation": "autorotate" as const,
+          "curve-style": "bezier" as const,
+          "target-arrow-shape": "triangle" as const,
         },
       },
     ],
-    []
+    [],
   );
 
   if (!CytoscapeComponent || elements.length === 0) {
     return (
       <div className="h-96 bg-navy-800/50 border border-navy-700 rounded-2xl flex items-center justify-center">
         <p className="text-slate-500 text-sm">
-          {elements.length === 0 ? 'No subgraph data available' : 'Loading graph viewer...'}
+          {elements.length === 0
+            ? "No subgraph data available"
+            : "Loading graph viewer..."}
         </p>
       </div>
     );
@@ -139,8 +141,8 @@ export default function SubgraphViewer({ explanation }: SubgraphViewerProps) {
       <CytoscapeComponent
         elements={elements}
         stylesheet={stylesheet}
-        layout={{ name: 'cose', animate: true, animationDuration: 500 }}
-        style={{ width: '100%', height: '100%' }}
+        layout={{ name: "cose", animate: true, animationDuration: 500 }}
+        style={{ width: "100%", height: "100%" }}
         userPanningEnabled={true}
         userZoomingEnabled={true}
         boxSelectionEnabled={false}
@@ -151,7 +153,10 @@ export default function SubgraphViewer({ explanation }: SubgraphViewerProps) {
         <div className="grid grid-cols-3 gap-x-4 gap-y-1">
           {Object.entries(labelColors).map(([label, color]) => (
             <div key={label} className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+              <div
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: color }}
+              />
               <span className="text-slate-400">{label}</span>
             </div>
           ))}
