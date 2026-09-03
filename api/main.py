@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -8,10 +9,12 @@ from api.ml_loader import ml_loader
 from api.routers import auth, explanations, predictions, validation
 from api.schemas import HealthResponse
 
+logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load ML models on startup
+    # Just register paths, DO NOT load heavy models here.
+    # This prevents blocking the server startup and missing the port binding window.
     ml_loader.load(config.MODEL_PATH, config.DATA_DIR)
     yield
     # Cleanup on shutdown
