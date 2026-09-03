@@ -1,5 +1,7 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from validation.pubmed_check import check_pubmed
+
 
 @patch("validation.pubmed_check.requests.get")
 def test_finds_existing_literature(mock_get, mock_pubmed_search_response, mock_pubmed_summary_response):

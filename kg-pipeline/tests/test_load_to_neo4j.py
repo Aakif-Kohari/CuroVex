@@ -1,12 +1,10 @@
 """Tests for load_to_neo4j.py."""
 
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
-
 from load_to_neo4j import (
-    DEFAULT_BATCH_SIZE,
     batched,
     build_constraint_queries,
     build_edge_merge_query,
@@ -16,7 +14,6 @@ from load_to_neo4j import (
     load_edges,
     load_nodes,
 )
-
 
 # ---------------------------------------------------------------------------
 # batched
@@ -259,9 +256,8 @@ class TestNeo4jIntegration:
         sample_edges_df: pd.DataFrame,
     ) -> None:
         """Load sample data and verify it's queryable."""
-        from neo4j import GraphDatabase
-
         from load_to_neo4j import get_neo4j_config
+        from neo4j import GraphDatabase
 
         config = get_neo4j_config()
         driver = GraphDatabase.driver(
@@ -316,9 +312,8 @@ class TestNeo4jIntegration:
         sample_edges_df: pd.DataFrame,
     ) -> None:
         """Loading the same data twice produces the same graph (MERGE)."""
-        from neo4j import GraphDatabase
-
         from load_to_neo4j import get_neo4j_config
+        from neo4j import GraphDatabase
 
         config = get_neo4j_config()
         driver = GraphDatabase.driver(

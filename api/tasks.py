@@ -1,10 +1,10 @@
-from api.celery_app import celery_app
-from api.database import SessionLocal
-from api.models import PredictionRun, Prediction
+import os
+import sys
 from datetime import datetime
 
-import sys
-import os
+from api.celery_app import celery_app
+from api.database import SessionLocal
+from api.models import Prediction, PredictionRun
 
 ml_core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../ml-core"))
 if ml_core_path not in sys.path:

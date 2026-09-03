@@ -11,11 +11,17 @@ Usage:
 
 import argparse
 from pathlib import Path
+
 import pandas as pd
 import torch
-
-from graph_utils import get_default_csv_paths, load_triples_from_csv, build_pyg_data, get_node_id_maps
+from graph_utils import (
+    build_pyg_data,
+    get_default_csv_paths,
+    get_node_id_maps,
+    load_triples_from_csv,
+)
 from train_gat import GATLinkPredictor
+
 
 def resolve_disease_id(disease_input: str, nodes_df: pd.DataFrame) -> int:
     """Resolve a disease input (MONDO ID or integer) to a node_index."""
@@ -60,7 +66,6 @@ def predict_drugs(disease_id: int, top_k: int, model_path: Path, data_dir: Path 
     triples_factory = load_triples_from_csv(nodes_path, edges_path)
     id_maps = get_node_id_maps(triples_factory)
     label_to_id = id_maps["label_to_id"]
-    id_to_label = id_maps["id_to_label"]
     
     data = build_pyg_data(triples_factory, entity_embeddings).to(device)
     

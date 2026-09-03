@@ -1,11 +1,12 @@
+import logging
 import os
 import sys
 import time
-import logging
 import urllib.parse
 from dataclasses import dataclass, field
+from typing import Any
+
 import requests
-from typing import List, Dict, Any
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class PubMedResult:
     has_literature: bool
     article_count: int
-    articles: List[Dict[str, Any]] = field(default_factory=list)
+    articles: list[dict[str, Any]] = field(default_factory=list)
     evidence_url: str = ""
 
 def check_pubmed(drug_name: str, disease_name: str) -> PubMedResult:

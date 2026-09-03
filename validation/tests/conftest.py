@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def mock_clinicaltrials_response():
     return {

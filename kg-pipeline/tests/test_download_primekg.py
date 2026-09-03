@@ -1,12 +1,10 @@
 """Tests for download_primekg.py."""
 
-import io
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
-
 from download_primekg import (
     EXPECTED_COLUMNS,
     PRIMEKG_URL,
@@ -14,7 +12,6 @@ from download_primekg import (
     download_primekg,
     validate_columns,
 )
-
 
 # ---------------------------------------------------------------------------
 # validate_columns

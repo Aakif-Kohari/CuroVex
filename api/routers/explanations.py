@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
 from api.database import get_db
-from api.models import Prediction, Explanation
+from api.models import Explanation, Prediction
 from api.schemas import ExplanationResponse
 
 # Import explain functions with try/except

@@ -1,9 +1,10 @@
-import pytest
-import pandas as pd
-import torch
-from pathlib import Path
 from unittest.mock import MagicMock
+
+import pandas as pd
+import pytest
+import torch
 from train_gat import GATLinkPredictor
+
 
 @pytest.fixture
 def sample_nodes_df():

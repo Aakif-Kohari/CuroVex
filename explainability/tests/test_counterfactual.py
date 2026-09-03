@@ -5,26 +5,25 @@ fidelity scoring, and the end-to-end counterfactual_explain function.
 All tests use synthetic graph data — no Neo4j or real model required.
 """
 
-import pytest
-import torch
-
-from explainability.counterfactual import (
-    MaskedEdgeResult,
-    CounterfactualExplanation,
-    extract_local_subgraph,
-    mask_edge,
-    compute_prediction_score,
-    counterfactual_explain,
-    format_explanation,
-)
-
 # Import the model class for creating test instances
 import sys
 from pathlib import Path
 
+import pytest
+import torch
+
+from explainability.counterfactual import (
+    CounterfactualExplanation,
+    MaskedEdgeResult,
+    compute_prediction_score,
+    counterfactual_explain,
+    extract_local_subgraph,
+    format_explanation,
+    mask_edge,
+)
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "ml-core"))
 from train_gat import GATLinkPredictor
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -128,7 +127,7 @@ class TestExtractLocalSubgraph:
 
     def test_seed_pair_includes_both_seeds(self, small_graph):
         """Subgraph from drug(0)+disease(1) seeds includes both."""
-        reachable, edges = extract_local_subgraph(
+        reachable, _ = extract_local_subgraph(
             {0, 1},
             small_graph["edge_index"],
             small_graph["edge_types"],
@@ -154,7 +153,7 @@ class TestExtractLocalSubgraph:
 
     def test_zero_hops_returns_only_seeds(self, small_graph):
         """Zero hops means only seed nodes, no expansion."""
-        reachable, edges = extract_local_subgraph(
+        reachable, _ = extract_local_subgraph(
             {0},
             small_graph["edge_index"],
             small_graph["edge_types"],
@@ -194,10 +193,6 @@ class TestMaskEdge:
         """All edges except the masked one should still be present."""
         ei = small_graph["edge_index"]
         masked = mask_edge(ei, 2)  # Remove edge at index 2
-
-        # Original edge at index 2 is (2, 3)
-        original_src = ei[0, 2].item()
-        original_dst = ei[1, 2].item()
 
         # Check other edges still exist
         for i in range(ei.shape[1]):

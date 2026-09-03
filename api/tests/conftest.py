@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from api.database import Base, get_db
 from api.main import app
-from api.database import get_db, Base
 from api.ml_loader import ml_loader
 
 # Use in-memory SQLite for tests

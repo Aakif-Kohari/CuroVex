@@ -1,6 +1,5 @@
-import sys
 import os
-from pathlib import Path
+import sys
 
 # Add project root to path so we can import ml-core
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -17,7 +16,7 @@ class MLLoader:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(MLLoader, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
     def load(self, model_path: str, data_dir: str):

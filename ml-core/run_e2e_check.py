@@ -11,13 +11,15 @@ Usage:
 import argparse
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 # Add parent directory to sys.path to import from explainability
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from predict import predict_drugs, resolve_disease_id
 from graph_utils import get_default_csv_paths
+from predict import predict_drugs, resolve_disease_id
+
 from explainability.path_based import explain, format_explanation
 
 

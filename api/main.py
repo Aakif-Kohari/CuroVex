@@ -1,11 +1,13 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 
 from api.config import config
 from api.ml_loader import ml_loader
+from api.routers import auth, explanations, predictions, validation
 from api.schemas import HealthResponse
-from api.routers import auth, predictions, explanations, validation
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

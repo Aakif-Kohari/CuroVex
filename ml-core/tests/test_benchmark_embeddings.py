@@ -1,8 +1,9 @@
-import pytest
-from unittest.mock import patch, MagicMock
-import torch
 import json
-from benchmark_embeddings import select_best_model, benchmark_all, save_best_embeddings
+from unittest.mock import MagicMock, patch
+
+import torch
+from benchmark_embeddings import benchmark_all, save_best_embeddings, select_best_model
+
 
 class TestSelectBestModel:
     def test_selects_highest_mrr(self):
@@ -39,7 +40,7 @@ class TestBenchmarkAll:
         mock_tf = MagicMock()
         mock_tf.split.return_value = (MagicMock(), MagicMock(), MagicMock())
         
-        results = benchmark_all(mock_tf, 16, 1, "cpu")
+        benchmark_all(mock_tf, 16, 1, "cpu")
         
         assert mock_pipeline.call_count == 4
         from benchmark_embeddings import MODELS

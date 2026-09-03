@@ -10,7 +10,6 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 import requests
@@ -97,7 +96,7 @@ def validate_columns(filepath: Path) -> bool:
 
 
 def download_primekg(
-    output_dir: Optional[Path] = None, force: bool = False
+    output_dir: Path | None = None, force: bool = False
 ) -> Path:
     """Download PrimeKG kg.csv and return the path to the saved file.
 

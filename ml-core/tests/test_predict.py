@@ -1,9 +1,9 @@
-import pytest
-from unittest.mock import patch, MagicMock
 from pathlib import Path
-import torch
+from unittest.mock import MagicMock, patch
 
-from predict import resolve_disease_id, predict_drugs
+import pytest
+from predict import predict_drugs, resolve_disease_id
+
 
 class TestResolveDiseaseId:
     def test_resolves_mondo_id(self, sample_nodes_df):
@@ -31,7 +31,7 @@ class TestPredictDrugs:
         # Override encode to return the mocked embeddings directly for predictability
         mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
         
-        nodes_path, edges_path = sample_triples_csv
+        nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
         
         results = predict_drugs(4, top_k=10, model_path=Path("dummy_model.pt"), data_dir=data_dir)
@@ -47,7 +47,7 @@ class TestPredictDrugs:
         mock_gat_cls.return_value = mock_gat_model
         mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
         
-        nodes_path, edges_path = sample_triples_csv
+        nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
         
         # Disease 3 has an existing TREATS from Drug 0 in sample_edges_df
@@ -63,7 +63,7 @@ class TestPredictDrugs:
         mock_gat_cls.return_value = mock_gat_model
         mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
         
-        nodes_path, edges_path = sample_triples_csv
+        nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
         
         results = predict_drugs(4, top_k=1, model_path=Path("dummy_model.pt"), data_dir=data_dir)
@@ -76,7 +76,7 @@ class TestPredictDrugs:
         mock_gat_cls.return_value = mock_gat_model
         mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
         
-        nodes_path, edges_path = sample_triples_csv
+        nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
         
         results = predict_drugs(4, top_k=10, model_path=Path("dummy_model.pt"), data_dir=data_dir)
@@ -94,7 +94,7 @@ class TestPredictDrugs:
         mock_gat_cls.return_value = mock_gat_model
         mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
         
-        nodes_path, edges_path = sample_triples_csv
+        nodes_path, _ = sample_triples_csv
         data_dir = nodes_path.parent
         
         results = predict_drugs(4, top_k=10, model_path=Path("dummy_model.pt"), data_dir=data_dir)

@@ -1,10 +1,11 @@
+import logging
 import os
 import sys
 import time
-import logging
 from dataclasses import dataclass, field
+from typing import Any
+
 import requests
-from typing import List, Dict, Any
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 class ClinicalTrialResult:
     has_trial: bool
     trial_count: int
-    trials: List[Dict[str, Any]] = field(default_factory=list)
+    trials: list[dict[str, Any]] = field(default_factory=list)
     evidence_url: str = ""
 
 def check_clinical_trials(drug_name: str, disease_name: str) -> ClinicalTrialResult:

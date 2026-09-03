@@ -22,18 +22,17 @@ _project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_project_root / "ml-core"))
 
 from graph_utils import (
-    get_default_csv_paths,
-    load_triples_from_csv,
     build_pyg_data,
+    get_default_csv_paths,
     get_node_id_maps,
+    load_triples_from_csv,
 )
 from train_gat import GATLinkPredictor
 
 from explainability.counterfactual import (
-    counterfactual_explain,
     compute_prediction_score,
+    counterfactual_explain,
     extract_local_subgraph,
-    mask_edge,
 )
 from explainability.path_based import explain as path_explain
 

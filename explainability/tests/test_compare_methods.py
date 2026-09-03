@@ -4,24 +4,30 @@ Tests the comparison logic, path fidelity computation, and output formatting
 using synthetic data — no Neo4j or real model required.
 """
 
-import pytest
-import torch
-import pandas as pd
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
+import pandas as pd
+import pytest
+import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "ml-core"))
 from train_gat import GATLinkPredictor
 
 from explainability.compare_methods import (
     ComparisonRow,
-    compare_single_prediction,
-    compare_methods,
-    format_comparison_table,
     _match_path_edges_to_graph,
+    compare_methods,
+    compare_single_prediction,
+    format_comparison_table,
 )
-from explainability.path_based import PathExplanation, ExplanationPath, PathNode, PathEdge
+from explainability.path_based import (
+    ExplanationPath,
+    PathEdge,
+    PathExplanation,
+    PathNode,
+)
 
 
 @pytest.fixture

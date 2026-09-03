@@ -4,15 +4,12 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-
 from normalize_schema import (
-    DISPLAY_RELATION_MAP,
     NODE_TYPE_MAP,
     extract_edges,
     extract_nodes,
     normalize,
 )
-
 
 # ---------------------------------------------------------------------------
 # extract_nodes
@@ -103,7 +100,7 @@ class TestExtractNodes:
 
     def test_all_node_type_mappings_covered(self) -> None:
         """Every entry in NODE_TYPE_MAP produces valid label strings."""
-        for primekg_type, labels in NODE_TYPE_MAP.items():
+        for labels in NODE_TYPE_MAP.values():
             assert len(labels) >= 1
             for label in labels:
                 assert label[0].isupper(), f"Label {label} should be capitalized"

@@ -1,0 +1,9 @@
+[tool.ruff.lint]
+ignore = [
+    "B008",   # Depends-in-default (Standard FastAPI)
+    "DTZ003", # utcnow (Standard FastAPI)
+    "BLE001", # Blind exception (Standard for try/except error logging)
+    "RUF013", # Implicit Optional
+    "N999",   # Invalid module name (Allows hyphens in folder names like kg-pipeline)
+    "ISC004", # Implicit string concatenation in f-strings
+]

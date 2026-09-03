@@ -5,7 +5,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from crosscheck_drkg import (
     build_report,
     get_primekg_counts_from_neo4j,

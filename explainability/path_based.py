@@ -10,11 +10,13 @@ Usage:
     python path_based.py 0 1 --max-hops 3
 """
 
-import os
 import argparse
+import os
 from dataclasses import dataclass
+
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
+
 
 @dataclass
 class PathNode:

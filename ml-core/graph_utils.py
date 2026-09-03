@@ -7,13 +7,14 @@ normalized CSV files (primary) or Neo4j (optional).
 
 import os
 from pathlib import Path
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import torch
+from dotenv import load_dotenv
+from neo4j import GraphDatabase
 from pykeen.triples import TriplesFactory
 from torch_geometric.data import Data
-from neo4j import GraphDatabase
-from dotenv import load_dotenv
 
 load_dotenv()
 

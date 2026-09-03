@@ -1,13 +1,15 @@
-from pydantic import BaseModel, EmailStr
-from typing import List, Optional, Any
-from uuid import UUID
 from datetime import datetime
+from typing import Any
+from uuid import UUID
+
+from pydantic import BaseModel, EmailStr
+
 
 class PredictionOut(BaseModel):
     id: UUID
     drug_id: str
     disease_id: str
-    drug_name: Optional[str] = None
+    drug_name: str | None = None
     score: float
     rank: int
 
@@ -19,8 +21,8 @@ class PredictionRunOut(BaseModel):
     disease_id: str
     model_version: str
     started_at: datetime
-    completed_at: Optional[datetime] = None
-    predictions: List[PredictionOut] = []
+    completed_at: datetime | None = None
+    predictions: list[PredictionOut] = []
 
     class Config:
         from_attributes = True
@@ -29,7 +31,7 @@ class ExplanationOut(BaseModel):
     id: UUID
     prediction_id: UUID
     method: str
-    fidelity_score: Optional[float] = None
+    fidelity_score: float | None = None
     subgraph: Any
 
     class Config:
@@ -37,7 +39,7 @@ class ExplanationOut(BaseModel):
 
 class ExplanationResponse(BaseModel):
     prediction_id: UUID
-    explanations: List[ExplanationOut]
+    explanations: list[ExplanationOut]
 
     class Config:
         from_attributes = True
@@ -47,12 +49,13 @@ class ValidationOut(BaseModel):
     prediction_id: UUID
     has_clinical_trial: bool
     has_literature_support: bool
-    evidence_url: Optional[str] = None
+    evidence_url: str | None = None
 
     class Config:
         from_attributes = True
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
+
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -69,7 +72,7 @@ class TokenResponse(BaseModel):
 class TaskStatusOut(BaseModel):
     task_id: str
     status: str
-    result: Optional[Any] = None
+    result: Any | None = None
 
 class HealthResponse(BaseModel):
     status: str

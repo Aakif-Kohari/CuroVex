@@ -1,9 +1,16 @@
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from explainability.path_based import (
-    PathNode, PathEdge, ExplanationPath, extract_meta_path_pattern,
-    group_by_pattern, explain, format_explanation, find_paths
+    ExplanationPath,
+    PathEdge,
+    PathNode,
+    explain,
+    extract_meta_path_pattern,
+    find_paths,
+    format_explanation,
+    group_by_pattern,
 )
+
 
 class TestExtractMetaPathPattern:
     def test_two_hop_pattern(self):

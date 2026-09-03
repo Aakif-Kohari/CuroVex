@@ -1,6 +1,7 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from uuid import UUID
 
 from api.database import get_db
 from api.models import Prediction, ValidationResult

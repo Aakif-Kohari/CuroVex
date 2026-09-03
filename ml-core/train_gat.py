@@ -10,16 +10,16 @@ Usage:
 
 import argparse
 from pathlib import Path
+
+import mlflow
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from dotenv import load_dotenv
+from graph_utils import build_pyg_data, get_default_csv_paths, load_triples_from_csv
+from sklearn.metrics import average_precision_score, roc_auc_score
+from torch import nn
 from torch_geometric.nn import GATConv
 from torch_geometric.transforms import RandomLinkSplit
-import mlflow
-from sklearn.metrics import roc_auc_score, average_precision_score
-from dotenv import load_dotenv
-
-from graph_utils import get_default_csv_paths, load_triples_from_csv, build_pyg_data
 
 load_dotenv()
 
@@ -78,7 +78,7 @@ def train():
         add_negative_train_samples=True
     )
     
-    train_data, val_data, test_data = transform(data)
+    train_data, val_data, _ = transform(data)
     
     train_data = train_data.to(device)
     val_data = val_data.to(device)

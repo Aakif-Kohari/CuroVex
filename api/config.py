@@ -1,6 +1,7 @@
 import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
+
 
 class Settings(BaseSettings):
     POSTGRES_USER: str = "curovex"
@@ -33,7 +34,7 @@ class Settings(BaseSettings):
         return f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         
     @property
-    def cors_origins_list(self) -> List[str]:
+    def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
 
 config = Settings()

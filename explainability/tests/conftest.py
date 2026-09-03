@@ -1,5 +1,7 @@
 import pytest
-from explainability.path_based import PathNode, PathEdge, ExplanationPath
+
+from explainability.path_based import ExplanationPath, PathEdge, PathNode
+
 
 @pytest.fixture
 def mock_neo4j_paths():

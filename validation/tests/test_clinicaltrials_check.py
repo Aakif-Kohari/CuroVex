@@ -1,5 +1,7 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from validation.clinicaltrials_check import check_clinical_trials
+
 
 @patch("validation.clinicaltrials_check.requests.get")
 def test_finds_existing_trial(mock_get, mock_clinicaltrials_response):

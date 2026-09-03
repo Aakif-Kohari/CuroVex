@@ -1,15 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import Optional
+import os
+import sys
 from datetime import datetime
 
-from api.database import get_db
-from api.models import PredictionRun, Prediction
-from api.schemas import PredictionRunOut
-from api.config import config
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
-import sys
-import os
+from api.config import config
+from api.database import get_db
+from api.models import Prediction, PredictionRun
+from api.schemas import PredictionRunOut
 
 # Append the ml-core directory to sys.path since it has a hyphen in its name
 ml_core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../ml-core"))

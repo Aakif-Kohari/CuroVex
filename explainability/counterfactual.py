@@ -14,22 +14,21 @@ Usage:
 import argparse
 import logging
 import sys
-import warnings
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from pathlib import Path
 
-import torch
 import pandas as pd
+import torch
 
 # Add parent dirs so we can import ml-core and explainability modules
 _project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_project_root / "ml-core"))
 
 from graph_utils import (
-    get_default_csv_paths,
-    load_triples_from_csv,
     build_pyg_data,
+    get_default_csv_paths,
     get_node_id_maps,
+    load_triples_from_csv,
 )
 from train_gat import GATLinkPredictor
 
@@ -449,13 +448,13 @@ def format_explanation(explanation: CounterfactualExplanation) -> str:
     lines = [
         f"=== Counterfactual Explanation: Drug {explanation.drug_id} -> "
         f"Disease {explanation.disease_id} ===",
-        f"",
+        "",
         f"Original prediction score: {explanation.original_score:.4f}",
         f"Overall fidelity:          {explanation.overall_fidelity:.4f}",
         f"Sparsity:                  {explanation.sparsity:.4f} "
         f"({int(explanation.sparsity * len(explanation.masked_edges))}"
         f"/{len(explanation.masked_edges)} significant edges)",
-        f"",
+        "",
     ]
 
     if not explanation.masked_edges:

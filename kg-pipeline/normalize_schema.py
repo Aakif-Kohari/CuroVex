@@ -16,7 +16,6 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -237,8 +236,8 @@ def extract_edges(df: pd.DataFrame, valid_indices: set[int]) -> pd.DataFrame:
 
 
 def normalize(
-    input_path: Optional[Path] = None,
-    output_dir: Optional[Path] = None,
+    input_path: Path | None = None,
+    output_dir: Path | None = None,
 ) -> tuple[Path, Path]:
     """Run the full normalization pipeline.
 

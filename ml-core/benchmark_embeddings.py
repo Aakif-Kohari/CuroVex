@@ -13,13 +13,13 @@ import argparse
 import json
 import time
 from pathlib import Path
-import torch
+
 import mlflow
+import torch
+from dotenv import load_dotenv
+from graph_utils import get_default_csv_paths, load_triples_from_csv
 from pykeen.pipeline import pipeline
 from pykeen.triples import TriplesFactory
-from dotenv import load_dotenv
-
-from graph_utils import get_default_csv_paths, load_triples_from_csv
 
 load_dotenv()
 
@@ -46,7 +46,7 @@ def benchmark_all(triples_factory: TriplesFactory, embedding_dim: int, num_epoch
                 device=device
             )
             
-            metrics = result.metric_results.to_dict()
+            result.metric_results.to_dict()
             
             mrr = result.metric_results.get_metric('both.realistic.inverse_harmonic_mean_rank')
             hits_at_1 = result.metric_results.get_metric('both.realistic.hits_at_1')
