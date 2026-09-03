@@ -202,16 +202,17 @@ def extract_edges(df: pd.DataFrame, valid_indices: set[int]) -> pd.DataFrame:
     # direction for this relationship type, swap source and target
     edges["x_type_clean"] = edges["x_type"].str.lower().str.strip()
 
-    def _maybe_flip(row: pd.Series) -> pd.Series:
-        """Swap source/target if PrimeKG direction doesn't match schema."""
-        rel_type = row["type"]
-        expected_sources = EXPECTED_DIRECTIONS.get(rel_type, ())
-        if row["x_type_clean"] not in expected_sources:
-            # Flip: the y node is actually the source in the CuroVex schema
-            row["x_index"], row["y_index"] = row["y_index"], row["x_index"]
-        return row
+    # EXPECTED_DIRECTIONS entries are all single-element tuples, so flatten once:
+    _EXPECTED_SOURCE = {k: v[0] for k, v in EXPECTED_DIRECTIONS.items() if v}
 
-    edges = edges.apply(_maybe_flip, axis=1)
+    # Vectorized flip logic (replaces slow .apply() row-by-row processing)
+    edges["_expected_source"] = edges["type"].map(_EXPECTED_SOURCE)
+    needs_flip = edges["x_type_clean"] != edges["_expected_source"]
+
+    flipped_x = edges["x_index"].where(~needs_flip, edges["y_index"])
+    flipped_y = edges["y_index"].where(~needs_flip, edges["x_index"])
+    edges["x_index"], edges["y_index"] = flipped_x, flipped_y
+    edges = edges.drop(columns=["_expected_source"])
 
     result = edges[["x_index", "y_index", "type", "display_relation"]].rename(
         columns={"x_index": "source_index", "y_index": "target_index"}

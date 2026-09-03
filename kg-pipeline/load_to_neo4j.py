@@ -237,7 +237,9 @@ def load_edges(
 
 
 def load_to_neo4j(
-    input_dir: Path | None = None, batch_size: int = DEFAULT_BATCH_SIZE
+    input_dir: Path | None = None,
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    exclude_rel_types: list[str] | None = None,
 ) -> None:
     """Run the full load pipeline.
 
@@ -245,6 +247,7 @@ def load_to_neo4j(
         input_dir:  Directory containing nodes.csv and edges.csv.
                     Defaults to ``data/normalized``.
         batch_size: Number of rows per UNWIND batch.
+        exclude_rel_types: List of relationship types to skip loading.
     """
     if input_dir is None:
         input_dir = Path("data/normalized")
@@ -260,6 +263,12 @@ def load_to_neo4j(
 
     nodes_df = pd.read_csv(nodes_path)
     edges_df = pd.read_csv(edges_path)
+    
+    if exclude_rel_types:
+        before = len(edges_df)
+        edges_df = edges_df[~edges_df["type"].isin(exclude_rel_types)]
+        print(f"Excluded {before - len(edges_df)} edges of type(s): {', '.join(exclude_rel_types)}")
+        
     print(f"Read {len(nodes_df)} nodes and {len(edges_df)} edges.")
 
     config = get_neo4j_config()
@@ -313,10 +322,17 @@ def main() -> None:
         default=DEFAULT_BATCH_SIZE,
         help=f"Rows per UNWIND batch (default: {DEFAULT_BATCH_SIZE})",
     )
+    parser.add_argument(
+        "--exclude-rel-types",
+        type=str,
+        default="",
+        help="Comma-separated relationship types to skip (e.g. INTERACTS_WITH,CAUSES_SIDE_EFFECT)",
+    )
     args = parser.parse_args()
-
+    
+    exclude = [t.strip() for t in args.exclude_rel_types.split(",") if t.strip()]
     input_dir = Path(args.input_dir) if args.input_dir else None
-    load_to_neo4j(input_dir=input_dir, batch_size=args.batch_size)
+    load_to_neo4j(input_dir=input_dir, batch_size=args.batch_size, exclude_rel_types=exclude or None)
 
 
 if __name__ == "__main__":
