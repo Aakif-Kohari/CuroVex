@@ -11,6 +11,11 @@ on:
         description: 'Neo4j load batch size'
         required: false
         default: '2000'
+      run_crosscheck:
+        description: 'Run optional DRKG vs PrimeKG cross-check report'
+        required: false
+        default: false
+        type: boolean # This creates a checkbox in the GitHub UI!
 
 concurrency:
   group: kg-etl
@@ -65,3 +70,21 @@ jobs:
           python load_to_neo4j.py
           --batch-size "${{ inputs.batch_size }}"
           --exclude-rel-types "${{ inputs.exclude_rel_types }}"
+
+      # --- OPTIONAL CROSS-CHECK STEPS BELOW ---
+      
+      - name: Cache DRKG download (Optional)
+        if: inputs.run_crosscheck == true
+        id: cache-drkg
+        uses: actions/cache@v4
+        with:
+          path: kg-pipeline/data/raw/drkg.tsv
+          key: drkg-raw-v1
+
+      - name: Cross-check DRKG vs PrimeKG (Optional)
+        if: inputs.run_crosscheck == true
+        env:
+          NEO4J_URI: ${{ secrets.NEO4J_URI }}
+          NEO4J_USER: ${{ secrets.NEO4J_USER }}
+          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
+        run: python crosscheck_drkg.py --output-dir data/raw
