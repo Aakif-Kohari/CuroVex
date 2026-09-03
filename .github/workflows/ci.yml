@@ -137,6 +137,9 @@ jobs:
     needs: [backend-lint-test, frontend-lint-test, ml-core-test, explainability-test, kg-pipeline-test]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
