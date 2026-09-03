@@ -404,6 +404,8 @@ def explain_from_disk(
 
     embeddings_path = model_path.parent / "best_embeddings.pt"
     entity_embeddings = torch.load(embeddings_path, map_location=device)
+    if entity_embeddings.is_complex():
+        entity_embeddings = torch.view_as_real(entity_embeddings).flatten(1)
 
     in_dim = entity_embeddings.shape[1]
     hidden_dim = 128

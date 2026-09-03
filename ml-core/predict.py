@@ -52,6 +52,8 @@ def predict_drugs(disease_id: int, top_k: int, model_path: Path, data_dir: Path 
     
     embeddings_path = model_path.parent / "best_embeddings.pt"
     entity_embeddings = torch.load(embeddings_path, map_location=device)
+    if entity_embeddings.is_complex():
+        entity_embeddings = torch.view_as_real(entity_embeddings).flatten(1)
     
     in_dim = entity_embeddings.shape[1]
     # We don't have access to hidden_dim used in training easily, assume 128 for now

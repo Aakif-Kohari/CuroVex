@@ -69,6 +69,8 @@ def train():
         raise FileNotFoundError(f"{embeddings_path} not found. Run benchmark_embeddings.py first.")
         
     entity_embeddings = torch.load(embeddings_path)
+    if entity_embeddings.is_complex():
+        entity_embeddings = torch.view_as_real(entity_embeddings).flatten(1)
     data = build_pyg_data(triples_factory, entity_embeddings)
     
     transform = RandomLinkSplit(
