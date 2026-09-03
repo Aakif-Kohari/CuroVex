@@ -10,33 +10,30 @@ from api.database import get_db
 from api.models import Prediction, PredictionRun
 from api.schemas import PredictionRunOut
 
-# Append the ml-core directory to sys.path since it has a hyphen in its name
-ml_core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../ml-core"))
-if ml_core_path not in sys.path:
-    sys.path.append(ml_core_path)
-
-try:
-    from predict import predict_drugs
-except ImportError:
-
-    def predict_drugs(
-        disease_id: str,
-        top_k: int,
-        model_path: str,
-        data_dir: str = None,
-        device: str = "cpu",
-    ) -> list[dict]:
-        # Dummy implementation for tests if real one missing
-        return [
-            {"drug_id": "DB00001", "drug_name": "DummyDrug", "score": 0.99, "rank": 1}
-        ]
-
-
 router = APIRouter()
-
 
 @router.get("/{disease_id}", response_model=PredictionRunOut)
 def get_predictions(disease_id: str, top_k: int = 20, db: Session = Depends(get_db)):
+    # LAZY IMPORT: Only load heavy ML code when this specific endpoint is hit
+    ml_core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../ml-core"))
+    if ml_core_path not in sys.path:
+        sys.path.append(ml_core_path)
+
+    try:
+        from predict import predict_drugs
+    except ImportError:
+        def predict_drugs(
+            disease_id: str,
+            top_k: int,
+            model_path: str,
+            data_dir: str = None,
+            device: str = "cpu",
+        ) -> list[dict]:
+            # Dummy implementation for tests if real one missing
+            return [
+                {"drug_id": "DB00001", "drug_name": "DummyDrug", "score": 0.99, "rank": 1}
+            ]
+
     # 1. Run prediction
     try:
         results = predict_drugs(

@@ -7,28 +7,25 @@ from api.database import get_db
 from api.models import Explanation, Prediction
 from api.schemas import ExplanationResponse
 
-# Import explain functions with try/except
-try:
-    from explainability.path_based import explain
-except ImportError:
-
-    def explain(drug_id: str, disease_id: str, max_hops: int = 3):
-        return []
-
-
-try:
-    from explainability.counterfactual import counterfactual_explain
-except ImportError:
-
-    def counterfactual_explain(drug_id: str, disease_id: str):
-        return None
-
-
 router = APIRouter()
-
 
 @router.get("/{prediction_id}", response_model=ExplanationResponse)
 def get_explanations(prediction_id: UUID, db: Session = Depends(get_db)):
+    # LAZY IMPORTS: Only load heavy AI code when this endpoint is hit
+    try:
+        from explainability.path_based import explain
+    except ImportError:
+
+        def explain(drug_id: str, disease_id: str, max_hops: int = 3):
+            return []
+
+    try:
+        from explainability.counterfactual import counterfactual_explain
+    except ImportError:
+
+        def counterfactual_explain(drug_id: str, disease_id: str):
+            return None
+
     prediction = db.query(Prediction).filter(Prediction.id == prediction_id).first()
     if not prediction:
         raise HTTPException(status_code=404, detail="Prediction not found")
