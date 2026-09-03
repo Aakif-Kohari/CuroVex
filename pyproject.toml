@@ -7,3 +7,7 @@ ignore = [
     "N999",   # Invalid module name (Allows hyphens in folder names like kg-pipeline)
     "ISC004", # Implicit string concatenation in f-strings
 ]
+[tool.pytest.ini_options]
+markers = [
+    "integration: requires live Neo4j — skipped in unit CI",
+]
