@@ -150,13 +150,15 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
-          context: ./api
+          context: .                    # Changed from ./api to . (repository root)
+          file: ./api/Dockerfile        # Explicitly point to the Dockerfile
           push: true
           tags: ghcr.io/aakif-kohari/curovex/api:latest
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
-          context: ./dashboard
+          context: ./dashboard          # Frontend only needs its own folder
+          file: ./dashboard/Dockerfile  # Explicitly point to the frontend Dockerfile
           push: true
           tags: ghcr.io/aakif-kohari/curovex/dashboard:latest
