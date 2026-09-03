@@ -13,26 +13,37 @@ if ml_core_path not in sys.path:
 try:
     from predict import predict_drugs
 except ImportError:
-    def predict_drugs(disease_id: str, top_k: int, model_path: str, data_dir: str = None, device: str = "cpu"):
-        return [{"drug_id": "DB00001", "drug_name": "DummyDrug", "score": 0.99, "rank": 1}]
+
+    def predict_drugs(
+        disease_id: str,
+        top_k: int,
+        model_path: str,
+        data_dir: str = None,
+        device: str = "cpu",
+    ):
+        return [
+            {"drug_id": "DB00001", "drug_name": "DummyDrug", "score": 0.99, "rank": 1}
+        ]
+
 
 @celery_app.task(bind=True)
 def run_batch_predictions(self, disease_id: str, top_k: int, user_id: str = None):
     db = SessionLocal()
     try:
         from api.config import config
+
         results = predict_drugs(
             disease_id=disease_id,
             top_k=top_k,
             model_path=config.MODEL_PATH,
-            data_dir=config.DATA_DIR
+            data_dir=config.DATA_DIR,
         )
 
         run = PredictionRun(
             disease_id=disease_id,
             user_id=user_id,
             model_version="1.0",
-            completed_at=datetime.utcnow()
+            completed_at=datetime.utcnow(),
         )
         db.add(run)
         db.commit()
@@ -45,10 +56,10 @@ def run_batch_predictions(self, disease_id: str, top_k: int, user_id: str = None
                 drug_name=r.get("drug_name"),
                 disease_id=disease_id,
                 score=float(r["score"]),
-                rank=int(r["rank"])
+                rank=int(r["rank"]),
             )
             db.add(pred)
-        
+
         db.commit()
         return str(run.id)
     except Exception as e:

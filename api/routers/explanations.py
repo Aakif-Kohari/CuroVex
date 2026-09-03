@@ -11,16 +11,21 @@ from api.schemas import ExplanationResponse
 try:
     from explainability.path_based import explain
 except ImportError:
+
     def explain(drug_id: str, disease_id: str, max_hops: int = 3):
         return []
+
 
 try:
     from explainability.counterfactual import counterfactual_explain
 except ImportError:
+
     def counterfactual_explain(drug_id: str, disease_id: str):
         return None
 
+
 router = APIRouter()
+
 
 @router.get("/{prediction_id}", response_model=ExplanationResponse)
 def get_explanations(prediction_id: UUID, db: Session = Depends(get_db)):
@@ -29,7 +34,9 @@ def get_explanations(prediction_id: UUID, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Prediction not found")
 
     # Check cache
-    existing = db.query(Explanation).filter(Explanation.prediction_id == prediction_id).all()
+    existing = (
+        db.query(Explanation).filter(Explanation.prediction_id == prediction_id).all()
+    )
     if existing:
         return {"prediction_id": prediction_id, "explanations": existing}
 
@@ -43,7 +50,9 @@ def get_explanations(prediction_id: UUID, db: Session = Depends(get_db)):
                 prediction_id=prediction_id,
                 method="path_based",
                 fidelity_score=None,
-                subgraph=pb_res if isinstance(pb_res, dict) else {"paths": str(pb_res)} # Serialize mock
+                subgraph=(
+                    pb_res if isinstance(pb_res, dict) else {"paths": str(pb_res)}
+                ),  # Serialize mock
             )
             db.add(expl)
             explanations_created.append(expl)
@@ -57,8 +66,14 @@ def get_explanations(prediction_id: UUID, db: Session = Depends(get_db)):
             expl = Explanation(
                 prediction_id=prediction_id,
                 method="counterfactual",
-                fidelity_score=cf_res.overall_fidelity if hasattr(cf_res, "overall_fidelity") else 0.9,
-                subgraph=cf_res.subgraph if hasattr(cf_res, "subgraph") else {"cf": "mock"}
+                fidelity_score=(
+                    cf_res.overall_fidelity
+                    if hasattr(cf_res, "overall_fidelity")
+                    else 0.9
+                ),
+                subgraph=(
+                    cf_res.subgraph if hasattr(cf_res, "subgraph") else {"cf": "mock"}
+                ),
             )
             db.add(expl)
             explanations_created.append(expl)

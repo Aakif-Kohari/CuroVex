@@ -18,25 +18,32 @@ if ml_core_path not in sys.path:
 try:
     from predict import predict_drugs
 except ImportError:
-    def predict_drugs(disease_id: str, top_k: int, model_path: str, data_dir: str = None, device: str = "cpu") -> list[dict]:
+
+    def predict_drugs(
+        disease_id: str,
+        top_k: int,
+        model_path: str,
+        data_dir: str = None,
+        device: str = "cpu",
+    ) -> list[dict]:
         # Dummy implementation for tests if real one missing
-        return [{"drug_id": "DB00001", "drug_name": "DummyDrug", "score": 0.99, "rank": 1}]
+        return [
+            {"drug_id": "DB00001", "drug_name": "DummyDrug", "score": 0.99, "rank": 1}
+        ]
+
 
 router = APIRouter()
 
+
 @router.get("/{disease_id}", response_model=PredictionRunOut)
-def get_predictions(
-    disease_id: str,
-    top_k: int = 20,
-    db: Session = Depends(get_db)
-):
+def get_predictions(disease_id: str, top_k: int = 20, db: Session = Depends(get_db)):
     # 1. Run prediction
     try:
         results = predict_drugs(
             disease_id=disease_id,
             top_k=top_k,
             model_path=config.MODEL_PATH,
-            data_dir=config.DATA_DIR
+            data_dir=config.DATA_DIR,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -44,8 +51,8 @@ def get_predictions(
     # 2. Create PredictionRun
     run = PredictionRun(
         disease_id=disease_id,
-        model_version="1.0", # Could read from ml_loader
-        completed_at=datetime.utcnow()
+        model_version="1.0",  # Could read from ml_loader
+        completed_at=datetime.utcnow(),
     )
     db.add(run)
     db.commit()
@@ -59,11 +66,11 @@ def get_predictions(
             drug_name=r.get("drug_name"),
             disease_id=disease_id,
             score=float(r["score"]),
-            rank=int(r["rank"])
+            rank=int(r["rank"]),
         )
         db.add(pred)
-    
+
     db.commit()
     db.refresh(run)
-    
+
     return run

@@ -16,6 +16,7 @@ async def lifespan(app: FastAPI):
     yield
     # Cleanup on shutdown
 
+
 app = FastAPI(
     title="CuroVex API",
     description="Explainable AI framework for drug repurposing",
@@ -35,6 +36,7 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(predictions.router, prefix="/predictions", tags=["predictions"])
 app.include_router(explanations.router, prefix="/explanations", tags=["explanations"])
 app.include_router(validation.router, prefix="/validation", tags=["validation"])
+
 
 @app.get("/health", response_model=HealthResponse)
 def health_check():

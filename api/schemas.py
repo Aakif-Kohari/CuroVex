@@ -16,6 +16,7 @@ class PredictionOut(BaseModel):
     class Config:
         from_attributes = True
 
+
 class PredictionRunOut(BaseModel):
     id: UUID
     disease_id: str
@@ -27,6 +28,7 @@ class PredictionRunOut(BaseModel):
     class Config:
         from_attributes = True
 
+
 class ExplanationOut(BaseModel):
     id: UUID
     prediction_id: UUID
@@ -37,12 +39,14 @@ class ExplanationOut(BaseModel):
     class Config:
         from_attributes = True
 
+
 class ExplanationResponse(BaseModel):
     prediction_id: UUID
     explanations: list[ExplanationOut]
 
     class Config:
         from_attributes = True
+
 
 class ValidationOut(BaseModel):
     id: UUID
@@ -54,25 +58,32 @@ class ValidationOut(BaseModel):
     class Config:
         from_attributes = True
 
+
 from pydantic import BaseModel, Field
 
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=8, description="Password must be at least 8 characters")
+    password: str = Field(
+        ..., min_length=8, description="Password must be at least 8 characters"
+    )
+
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
+
 
 class TaskStatusOut(BaseModel):
     task_id: str
     status: str
     result: Any | None = None
+
 
 class HealthResponse(BaseModel):
     status: str
