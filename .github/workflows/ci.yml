@@ -152,11 +152,11 @@ jobs:
         with:
           context: ./api
           push: true
-          tags: ghcr.io/${{ github.repository }}/api:latest
+          tags: ghcr.io/aakif-kohari/curovex/api:latest
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
           context: ./dashboard
           push: true
-          tags: ghcr.io/${{ github.repository }}/dashboard:latest
+          tags: ghcr.io/aakif-kohari/curovex/dashboard:latest
