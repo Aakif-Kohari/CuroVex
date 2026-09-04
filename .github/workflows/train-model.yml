@@ -37,6 +37,8 @@ jobs:
   train:
     runs-on: ubuntu-latest
     timeout-minutes: 330   # GitHub hard-caps hosted-runner jobs at 360; this leaves room to fail cleanly first
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: ./ml-core
