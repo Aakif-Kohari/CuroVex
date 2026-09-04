@@ -106,7 +106,7 @@ def parse_drkg(filepath: Path) -> dict:
     relation_type_counts = {}
     total_triplets = 0
 
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, "r", encoding="utf-8", errors="replace") as f:
         for line in f:
             line = line.strip()
             if not line:
