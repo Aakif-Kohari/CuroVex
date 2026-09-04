@@ -6,84 +6,44 @@
 
 | Service | Platform | Notes |
 |---|---|---|
-| **Graph DB** | Neo4j Aura Free | 1 instance. *Note: 400k relationship cap. `kg-pipeline` must subset PrimeKG to fit.* |
-| **API & Celery** | Render | Dockerized FastAPI (Web Service) + Celery (Background Worker). |
-| **Container Registry** | GitHub Container Registry (GHCR) | Images pushed via GitHub Actions to `ghcr.io/aakif-kohari/curovex/...` |
-| **Task Broker** | Redis | Render managed Redis (or Upstash free tier). |
-| **App DB (Postgres)**| Neon.tech | **Do not use Render Postgres** (it expires/deletes after 30-90 days). Neon provides a permanent free tier. |
-| **Frontend** | Vercel | Next.js 14. **Must configure build command to use `pnpm`**. |
-| **Model Artifacts** | GitHub Releases / S3 | Standard PyTorch state dicts (`.pt`), *not* TorchScript. Downloaded on cold-start via `start.sh`. |
+| Graph DB | Neo4j Aura Free | ~200k node / 400k relationship cap — graph is subsetted (excludes `INTERACTS_WITH`, `CAUSES_SIDE_EFFECT`) via `--exclude-rel-types` in `kg-etl.yml` to stay under the relationship cap |
+| App DB | Neon Free | Render's free Postgres expires after 30–90 days; Neon persists |
+| API | Render Free (Docker image from GHCR) | Image built + pushed by `.github/workflows/ci.yml`'s `build-and-push` job; Render deploys the `ghcr.io/aakif-kohari/curovex/api:latest` image directly rather than building from source |
+| Model artifacts | GitHub Release asset | Produced by `.github/workflows/train-model.yml`; downloaded at container boot by `api/start.sh` via `ARTIFACTS_URL` |
+| Frontend | Vercel | Next.js, zero-config deploy from `main` |
 
----
+*Note: Sentry error tracking, API rate limiting, and Celery/Redis are scaffolded but no endpoint currently calls `.delay()` — safe to skip deploying for now.*
 
-## ✅ Pre-deploy Checklist
+## Pre-deploy checklist
 
-### 1. Databases & Infrastructure
-- [ ] **Neon Postgres**: Provision project, get connection string (Transaction pooler mode recommended for serverless/Render).
-- [ ] **Neo4j Aura**: Provision free instance, get `NEO4J_URI`, `NEO4J_USER`, and `NEO4J_PASSWORD`.
-- [ ] **Redis**: Provision Render Redis or Upstash.
+- [ ] All CI checks green on `main`, including `build-and-push`
+- [ ] `kg-etl.yml` run against the Aura instance, confirmed relationship count < 400k
+- [ ] `train-model.yml` run, artifacts tarball uploaded as a GitHub Release, `ARTIFACTS_URL` copied
+- [ ] `.env.example` reflects every required variable (no secrets committed)
+- [ ] Neon connection string set as `DATABASE_URL` on Render
+- [ ] `NEO4J_URI` / `NEO4J_USER` / `NEO4J_PASSWORD` set on Render (Aura uses `neo4j+s://`)
+- [ ] `ARTIFACTS_URL` set on Render
+- [ ] CORS origins on Render updated to the deployed Vercel URL
+- [ ] `NEXT_PUBLIC_API_URL` set on Vercel to the Render URL
 
-### 2. GitHub Secrets (Repository Settings > Secrets and variables > Actions)
-- [ ] `DATABASE_URL` (Neon connection string)
-- [ ] `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`
-- [ ] `REDIS_URL`
-- [ ] `SECRET_KEY` (Randomly generated string for JWT signing)
-- [ ] `ARTIFACTS_URL` (URL to your GitHub Release or S3 bucket hosting the `.pt` model weights)
+## Deploy steps
 
-### 3. Codebase Readiness
-- [ ] All CI checks green on `main` (Linting, Pytest, Jest, Docker Build).
-- [ ] `.env.example` reflects every required environment variable (no secrets committed).
-- [ ] CORS origins in `api/main.py` updated to include the production Vercel URL.
-- [ ] `api/start.sh` is executable and correctly configured to download weights from `ARTIFACTS_URL`.
+1. Push to `main` — CI builds and pushes `ghcr.io/aakif-kohari/curovex/api:latest`
+2. On Render: point the web service at that GHCR image (Existing Image deploy, not a repo build)
+3. Render boot: `start.sh` downloads artifacts, runs `alembic upgrade head`, starts `uvicorn`
+4. Deploy frontend on Vercel (auto-triggers on push to `main`)
+5. Set `CORS_ORIGINS` on Render to the real Vercel URL, redeploy
 
----
+## Post-deploy smoke test
 
-## 🚀 Deploy Steps
+- [ ] `GET /health` returns 200
+- [ ] `GET /predictions/{a disease id present in the subsetted graph}` returns a non-empty ranked list
+- [ ] `GET /explanations/{prediction_id}` returns both `path_based` and `counterfactual`
+- [ ] Dashboard loads, search works, graph visualization renders
+- [ ] No CORS errors in browser devtools
 
-### Step 1: Trigger the CI/CD Pipeline
-1. Ensure all code is merged to `main`.
-2. The GitHub Actions workflow (`.github/workflows/ci.yml`) will automatically:
-   - Run all backend/frontend tests.
-   - Build the Docker images.
-   - Push the API and Dashboard images to **GHCR** (`ghcr.io/aakif-kohari/curovex/api:latest`).
+## Rollback plan
 
-### Step 2: Deploy Backend (Render)
-1. Create a new **Web Service** on Render.
-2. Connect your GitHub repository.
-3. **Root Directory**: `api` (or use the Dockerfile path `api/Dockerfile` depending on Render's Docker setup).
-4. **Environment Variables**: Add all secrets from the Pre-deploy checklist.
-5. Deploy.
-6. Create a **Background Worker** on Render using the same image/repo, pointing the start command to your Celery worker.
-
-### Step 3: Apply Database Migrations
-1. Open the Render Web Service shell or run locally against the production Neon DB:
-   ```bash
-   alembic upgrade head
-   ```
-
-### Step 4: Deploy Frontend (Vercel)
-1. Import the GitHub repository into Vercel.
-2. **Root Directory**: `dashboard`
-3. **Framework Preset**: Next.js
-4. **Build Command**: `pnpm build`
-5. **Install Command**: `pnpm install`
-6. **Environment Variables**: Add `NEXT_PUBLIC_API_URL` (pointing to your Render API URL).
-7. Deploy (will auto-deploy on future pushes to `main`).
-
----
-
-## 🧪 Post-deploy Smoke Test
-
-- [ ] **API Health**: `GET /health` returns `200 OK` and confirms DB/Neo4j connectivity.
-- [ ] **Predictions**: `GET /predictions/{known_disease_id}` returns a non-empty ranked list.
-- [ ] **Explanations**: `GET /explanations/{prediction_id}` returns both `path_based` and `counterfactual` payloads.
-- [ ] **Frontend**: Dashboard loads, search works, and the Cytoscape graph visualization renders without CORS errors.
-- [ ] **Model Download**: Check Render logs to ensure `start.sh` successfully downloaded the `.pt` weights from `ARTIFACTS_URL` on cold start.
-
----
-
-## ⏪ Rollback Plan
-
-- **API/Worker**: Render keeps previous Docker deployments. If the new image crashes, click "Rollback" in the Render deployments tab to the previous successful GHCR digest.
-- **Frontend**: Vercel maintains a history of deployments. Click "Promote to Production" on the previous successful deployment in the Vercel dashboard.
-- **Database**: **Do not roll back Postgres migrations** unless the new schema change is confirmed broken and data-loss is acceptable. If a migration breaks, write a *new* migration to reverse the changes.
+- Render: redeploy the previous image tag/digest from the service's deploy history
+- Vercel: revert to the previous deployment (one click)
+- Don't roll back Postgres migrations unless the new migration is confirmed broken

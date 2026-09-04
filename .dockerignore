@@ -1,15 +1,37 @@
+# Git & CI
 .git
 .github
+
+# Python Environments & Caches
 .venv
-node_modules
+venv/
 __pycache__
 *.pyc
-.env
-docs
-*.md
+*.pyo
 .pytest_cache
 .ruff_cache
 .mypy_cache
 coverage.xml
-.next
-dashboard
+
+# Node / Next.js
+node_modules/
+.next/
+dashboard/node_modules/
+dashboard/.next/
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Documentation & Heavy Data (Never put in Docker image)
+docs/
+*.md
+data/
+*.csv
+*.tsv
+*.pkl
+*.pt
+*.pth
+checkpoints/
+models/saved/
