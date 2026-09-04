@@ -148,9 +148,7 @@ def extract_nodes(df: pd.DataFrame) -> pd.DataFrame:
     nodes = all_nodes.drop_duplicates(subset=["node_index"]).copy()
 
     # Map to CuroVex labels (pipe-separated for dual labels)
-    nodes["labels"] = nodes["original_type"].map(
-        lambda t: "|".join(NODE_TYPE_MAP[t])
-    )
+    nodes["labels"] = nodes["original_type"].map(lambda t: "|".join(NODE_TYPE_MAP[t]))
 
     # Ensure source_id is a string for consistent handling
     nodes["source_id"] = nodes["source_id"].astype(str)
@@ -160,7 +158,9 @@ def extract_nodes(df: pd.DataFrame) -> pd.DataFrame:
     for label_group, count in nodes["labels"].value_counts().items():
         print(f"  {label_group}: {count}")
 
-    return nodes[["node_index", "source_id", "name", "labels", "source", "original_type"]]
+    return nodes[
+        ["node_index", "source_id", "name", "labels", "source", "original_type"]
+    ]
 
 
 def extract_edges(df: pd.DataFrame, valid_indices: set[int]) -> pd.DataFrame:
@@ -180,9 +180,7 @@ def extract_edges(df: pd.DataFrame, valid_indices: set[int]) -> pd.DataFrame:
     edges = df[endpoint_mask].copy()
 
     # Normalize display_relation (lowercase, strip whitespace)
-    edges["display_relation_clean"] = (
-        edges["display_relation"].str.lower().str.strip()
-    )
+    edges["display_relation_clean"] = edges["display_relation"].str.lower().str.strip()
 
     # Map to CuroVex relationship type
     edges["type"] = edges["display_relation_clean"].map(DISPLAY_RELATION_MAP)
@@ -220,9 +218,7 @@ def extract_edges(df: pd.DataFrame, valid_indices: set[int]) -> pd.DataFrame:
 
     # Deduplicate edges (same source, target, type)
     before_dedup = len(result)
-    result = result.drop_duplicates(
-        subset=["source_index", "target_index", "type"]
-    )
+    result = result.drop_duplicates(subset=["source_index", "target_index", "type"])
     if before_dedup > len(result):
         print(f"\nDeduplicated edges: {before_dedup} → {len(result)}")
 

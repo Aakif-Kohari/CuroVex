@@ -263,12 +263,14 @@ def load_to_neo4j(
 
     nodes_df = pd.read_csv(nodes_path)
     edges_df = pd.read_csv(edges_path)
-    
+
     if exclude_rel_types:
         before = len(edges_df)
         edges_df = edges_df[~edges_df["type"].isin(exclude_rel_types)]
-        print(f"Excluded {before - len(edges_df)} edges of type(s): {', '.join(exclude_rel_types)}")
-        
+        print(
+            f"Excluded {before - len(edges_df)} edges of type(s): {', '.join(exclude_rel_types)}"
+        )
+
     print(f"Read {len(nodes_df)} nodes and {len(edges_df)} edges.")
 
     config = get_neo4j_config()
@@ -329,10 +331,14 @@ def main() -> None:
         help="Comma-separated relationship types to skip (e.g. INTERACTS_WITH,CAUSES_SIDE_EFFECT)",
     )
     args = parser.parse_args()
-    
+
     exclude = [t.strip() for t in args.exclude_rel_types.split(",") if t.strip()]
     input_dir = Path(args.input_dir) if args.input_dir else None
-    load_to_neo4j(input_dir=input_dir, batch_size=args.batch_size, exclude_rel_types=exclude or None)
+    load_to_neo4j(
+        input_dir=input_dir,
+        batch_size=args.batch_size,
+        exclude_rel_types=exclude or None,
+    )
 
 
 if __name__ == "__main__":

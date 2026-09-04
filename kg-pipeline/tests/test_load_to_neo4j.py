@@ -171,18 +171,14 @@ class TestCreateConstraintsAndIndexes:
 
         create_constraints_and_indexes(mock_session)
 
-        expected_count = len(build_constraint_queries()) + len(
-            build_index_queries()
-        )
+        expected_count = len(build_constraint_queries()) + len(build_index_queries())
         assert mock_session.run.call_count == expected_count
 
 
 class TestLoadNodes:
     """Tests for node loading with mocked session."""
 
-    def test_loads_all_label_groups(
-        self, sample_nodes_df: pd.DataFrame
-    ) -> None:
+    def test_loads_all_label_groups(self, sample_nodes_df: pd.DataFrame) -> None:
         """Calls session.run for each label group."""
         mock_session = MagicMock()
 
@@ -220,9 +216,7 @@ class TestLoadNodes:
 class TestLoadEdges:
     """Tests for edge loading with mocked session."""
 
-    def test_loads_all_relationship_types(
-        self, sample_edges_df: pd.DataFrame
-    ) -> None:
+    def test_loads_all_relationship_types(self, sample_edges_df: pd.DataFrame) -> None:
         """Calls session.run for each relationship type."""
         mock_session = MagicMock()
 
@@ -288,9 +282,7 @@ class TestNeo4jIntegration:
             assert edge_count == 6
 
             # Verify dual-labeled gene/protein node
-            result = session.run(
-                "MATCH (n:Gene:Protein {id: 2}) RETURN n.name AS name"
-            )
+            result = session.run("MATCH (n:Gene:Protein {id: 2}) RETURN n.name AS name")
             record = result.single()
             assert record is not None
             assert record["name"] == "REN"

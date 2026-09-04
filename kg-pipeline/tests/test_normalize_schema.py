@@ -19,9 +19,7 @@ from normalize_schema import (
 class TestExtractNodes:
     """Tests for node extraction and deduplication."""
 
-    def test_extracts_supported_types(
-        self, sample_primekg_df: pd.DataFrame
-    ) -> None:
+    def test_extracts_supported_types(self, sample_primekg_df: pd.DataFrame) -> None:
         """Only supported node types are kept."""
         nodes = extract_nodes(sample_primekg_df)
 
@@ -32,9 +30,7 @@ class TestExtractNodes:
         for idx in [0, 1, 2, 3, 4, 5]:
             assert idx in nodes["node_index"].values
 
-    def test_deduplicates_nodes(
-        self, sample_primekg_df: pd.DataFrame
-    ) -> None:
+    def test_deduplicates_nodes(self, sample_primekg_df: pd.DataFrame) -> None:
         """Nodes appearing in multiple rows are deduplicated."""
         nodes = extract_nodes(sample_primekg_df)
 
@@ -42,9 +38,7 @@ class TestExtractNodes:
         # appear once in the output
         assert nodes["node_index"].value_counts()[0] == 1
 
-    def test_gene_protein_dual_label(
-        self, sample_primekg_df: pd.DataFrame
-    ) -> None:
+    def test_gene_protein_dual_label(self, sample_primekg_df: pd.DataFrame) -> None:
         """gene/protein type gets both Gene and Protein labels."""
         nodes = extract_nodes(sample_primekg_df)
 
@@ -86,9 +80,7 @@ class TestExtractNodes:
         for _, row in pathway_nodes.iterrows():
             assert row["labels"] == "Pathway"
 
-    def test_source_id_preserved(
-        self, sample_primekg_df: pd.DataFrame
-    ) -> None:
+    def test_source_id_preserved(self, sample_primekg_df: pd.DataFrame) -> None:
         """Source database IDs are preserved in the source_id column."""
         nodes = extract_nodes(sample_primekg_df)
 
@@ -114,9 +106,7 @@ class TestExtractNodes:
 class TestExtractEdges:
     """Tests for edge extraction and mapping."""
 
-    def test_maps_all_relationship_types(
-        self, sample_primekg_df: pd.DataFrame
-    ) -> None:
+    def test_maps_all_relationship_types(self, sample_primekg_df: pd.DataFrame) -> None:
         """All six CuroVex relationship types are produced from sample data."""
         nodes = extract_nodes(sample_primekg_df)
         valid_indices = set(nodes["node_index"].values)
@@ -133,9 +123,7 @@ class TestExtractEdges:
         actual_types = set(edges["type"].values)
         assert actual_types == expected_types
 
-    def test_drops_unsupported_nodes(
-        self, sample_primekg_df: pd.DataFrame
-    ) -> None:
+    def test_drops_unsupported_nodes(self, sample_primekg_df: pd.DataFrame) -> None:
         """Edges involving unsupported node types (anatomy) are dropped."""
         nodes = extract_nodes(sample_primekg_df)
         valid_indices = set(nodes["node_index"].values)
@@ -145,9 +133,7 @@ class TestExtractEdges:
         all_indices = set(edges["source_index"]) | set(edges["target_index"])
         assert 100 not in all_indices
 
-    def test_drops_unmapped_relations(
-        self, sample_primekg_df: pd.DataFrame
-    ) -> None:
+    def test_drops_unmapped_relations(self, sample_primekg_df: pd.DataFrame) -> None:
         """Edges with unmapped display_relation (contraindication) are dropped."""
         nodes = extract_nodes(sample_primekg_df)
         valid_indices = set(nodes["node_index"].values)
@@ -156,9 +142,7 @@ class TestExtractEdges:
         # "contraindication" is not in DISPLAY_RELATION_MAP
         assert "contraindication" not in edges["display_relation"].values
 
-    def test_indication_maps_to_treats(
-        self, sample_primekg_df: pd.DataFrame
-    ) -> None:
+    def test_indication_maps_to_treats(self, sample_primekg_df: pd.DataFrame) -> None:
         """display_relation 'indication' maps to TREATS."""
         nodes = extract_nodes(sample_primekg_df)
         valid_indices = set(nodes["node_index"].values)
@@ -231,9 +215,7 @@ class TestExtractEdges:
 class TestNormalize:
     """Tests for the full normalization pipeline."""
 
-    def test_end_to_end(
-        self, sample_primekg_df: pd.DataFrame, tmp_path: Path
-    ) -> None:
+    def test_end_to_end(self, sample_primekg_df: pd.DataFrame, tmp_path: Path) -> None:
         """Full pipeline reads a CSV and produces nodes.csv + edges.csv."""
         # Write sample data as input CSV
         input_path = tmp_path / "raw" / "kg.csv"
@@ -242,9 +224,7 @@ class TestNormalize:
 
         output_dir = tmp_path / "normalized"
 
-        nodes_path, edges_path = normalize(
-            input_path=input_path, output_dir=output_dir
-        )
+        nodes_path, edges_path = normalize(input_path=input_path, output_dir=output_dir)
 
         assert nodes_path.exists()
         assert edges_path.exists()

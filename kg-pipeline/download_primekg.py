@@ -95,9 +95,7 @@ def validate_columns(filepath: Path) -> bool:
     return True
 
 
-def download_primekg(
-    output_dir: Path | None = None, force: bool = False
-) -> Path:
+def download_primekg(output_dir: Path | None = None, force: bool = False) -> Path:
     """Download PrimeKG kg.csv and return the path to the saved file.
 
     Args:

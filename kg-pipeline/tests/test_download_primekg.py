@@ -65,9 +65,7 @@ class TestDownloadFile:
     """Tests for the HTTP download function."""
 
     @patch("download_primekg.requests.get")
-    def test_downloads_content(
-        self, mock_get: MagicMock, tmp_path: Path
-    ) -> None:
+    def test_downloads_content(self, mock_get: MagicMock, tmp_path: Path) -> None:
         """Successfully downloads and writes file content."""
         content = b"col1,col2\nval1,val2\n"
         mock_response = MagicMock()
@@ -83,9 +81,7 @@ class TestDownloadFile:
         assert dest.read_bytes() == content
 
     @patch("download_primekg.requests.get")
-    def test_creates_parent_dirs(
-        self, mock_get: MagicMock, tmp_path: Path
-    ) -> None:
+    def test_creates_parent_dirs(self, mock_get: MagicMock, tmp_path: Path) -> None:
         """Creates parent directories if they don't exist."""
         mock_response = MagicMock()
         mock_response.headers = {"content-length": "0"}
