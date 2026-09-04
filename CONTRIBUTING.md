@@ -20,10 +20,10 @@ docker compose up -d          # starts Neo4j, Postgres, Redis
 
 Backend:
 ```bash
-cd api
+# Navigate to the repository root (do not `cd api`).
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt --break-system-packages
-uvicorn main:app --reload
+pip install -r api/requirements.txt --break-system-packages
+uvicorn api.main:app --reload
 ```
 
 Frontend:

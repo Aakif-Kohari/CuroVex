@@ -77,7 +77,7 @@ cp .env.example .env
 
 ### 3. Spin up the Database & Redis via Docker
 ```bash
-docker compose up -d
+docker compose up -d postgres redis neo4j
 ```
 
 ### 4. Run the Pipeline & API
@@ -102,8 +102,8 @@ uvicorn api.main:app --reload
 ### 5. Start the Frontend Dashboard
 ```bash
 cd dashboard
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Visit `http://localhost:3000` to interact with the CuroVex dashboard!

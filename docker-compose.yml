@@ -48,7 +48,10 @@ services:
       - MODEL_PATH=${MODEL_PATH:-ml-core/artifacts/gat_link_predictor.pt}
       - DATA_DIR=${DATA_DIR:-kg-pipeline/data/normalized}
     volumes:
-      - .:/app
+      - ./api:/app/api
+      - ./ml-core:/app/ml-core
+      - ./explainability:/app/explainability
+      - ./validation:/app/validation
     depends_on:
       - neo4j
       - postgres
@@ -73,7 +76,10 @@ services:
       - MODEL_PATH=${MODEL_PATH:-ml-core/artifacts/gat_link_predictor.pt}
       - DATA_DIR=${DATA_DIR:-kg-pipeline/data/normalized}
     volumes:
-      - .:/app
+      - ./api:/app/api
+      - ./ml-core:/app/ml-core
+      - ./explainability:/app/explainability
+      - ./validation:/app/validation
     depends_on:
       - redis
       - postgres

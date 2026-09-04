@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+node_modules
+__pycache__
+*.pyc
+.env
+docs
+*.md
+.pytest_cache
+.ruff_cache
+.mypy_cache
+coverage.xml
+.next
+dashboard
