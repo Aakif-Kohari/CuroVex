@@ -1,0 +1,48 @@
+name: Add precomputed encodings to artifacts (manual)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  postprocess:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ml-core
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install CPU-only torch
+        run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Install ml-core dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download and extract existing artifacts
+        run: |
+          curl -sL -o /tmp/artifacts.tar.gz \
+            https://github.com/${{ github.repository }}/releases/download/artifacts-latest/curovex-artifacts.tar.gz
+          mkdir -p artifacts training-data
+          tar -xzf /tmp/artifacts.tar.gz -C artifacts
+          cp artifacts/nodes.csv artifacts/edges.csv training-data/
+          ls -la artifacts training-data
+
+      - name: Precompute node encodings
+        run: python precompute_encodings.py --model-path artifacts/gat_link_predictor.pt --data-dir training-data
+
+      - name: Repackage artifacts
+        run: |
+          mkdir -p package
+          cp artifacts/best_embeddings.pt artifacts/gat_link_predictor.pt artifacts/node_encodings.pt package/
+          cp training-data/nodes.csv training-data/edges.csv package/
+          tar -czf curovex-artifacts.tar.gz -C package .
+
+      - name: Re-publish to the same GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload artifacts-latest ml-core/curovex-artifacts.tar.gz --clobber
