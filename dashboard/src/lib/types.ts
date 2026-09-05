@@ -39,7 +39,7 @@ export interface MaskedEdge {
 export interface Explanation {
   id: string;
   prediction_id: string;
-  method: 'path_based' | 'counterfactual';
+  method: "path_based" | "counterfactual";
   fidelity_score: number | null;
   subgraph: {
     nodes: PathNode[];
@@ -60,4 +60,9 @@ export interface ValidationResult {
   has_clinical_trial: boolean;
   has_literature_support: boolean;
   evidence_url: string | null;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
 }

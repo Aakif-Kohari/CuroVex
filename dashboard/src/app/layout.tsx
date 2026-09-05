@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import Link from "next/link";
+import AuthNav from "../components/AuthNav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -51,6 +52,7 @@ export default function RootLayout({
                 >
                   About
                 </Link>
+                <AuthNav />
               </nav>
             </div>
           </header>
