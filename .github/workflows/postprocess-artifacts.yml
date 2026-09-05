@@ -3,6 +3,9 @@ name: Add precomputed encodings to artifacts (manual)
 on:
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   postprocess:
     runs-on: ubuntu-latest
