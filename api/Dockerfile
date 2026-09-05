@@ -14,7 +14,12 @@ COPY api/requirements.txt ./api/
 COPY explainability/requirements.txt ./explainability/
 
 ARG CACHEBUST=1
-# Install dependencies (both API and the ML/explainability dependencies it relies on)
+
+# Install CPU-only torch FIRST so pip doesn't download the 2.5GB CUDA version
+# when it reads api/requirements.txt
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+# Now Install dependencies (both API and the ML/explainability dependencies it relies on)
 RUN pip install --no-cache-dir -r api/requirements.txt
 RUN pip install --no-cache-dir -r explainability/requirements.txt
 
