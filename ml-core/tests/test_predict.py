@@ -1,8 +1,15 @@
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-from predict import predict_drugs, resolve_disease_id
+from predict import _ENCODINGS_CACHE, predict_drugs, resolve_disease_id
+
+
+@pytest.fixture(autouse=True)
+def clear_cache():
+    _ENCODINGS_CACHE.clear()
+    yield
+    _ENCODINGS_CACHE.clear()
 
 
 class TestResolveDiseaseId:
@@ -23,22 +30,10 @@ class TestResolveDiseaseId:
 
 class TestPredictDrugs:
     @patch("predict.torch.load")
-    @patch("predict.GATLinkPredictor")
     def test_returns_ranked_list(
-        self,
-        mock_gat_cls,
-        mock_torch_load,
-        sample_triples_csv,
-        mock_embeddings,
-        mock_gat_model,
+        self, mock_torch_load, sample_triples_csv, mock_node_encodings
     ):
-        mock_torch_load.side_effect = [mock_embeddings, {}]
-        mock_gat_cls.return_value = mock_gat_model
-        # Removed: mock_gat_model.load_state_dict = MagicMock() -> Handled by conftest.py fixture
-
-        # Override encode to return the mocked embeddings directly for predictability
-        mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
-
+        mock_torch_load.return_value = mock_node_encodings
         nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
 
@@ -51,23 +46,13 @@ class TestPredictDrugs:
         assert scores == sorted(scores, reverse=True)
 
     @patch("predict.torch.load")
-    @patch("predict.GATLinkPredictor")
     def test_filters_existing_treats(
-        self,
-        mock_gat_cls,
-        mock_torch_load,
-        sample_triples_csv,
-        mock_embeddings,
-        mock_gat_model,
+        self, mock_torch_load, sample_triples_csv, mock_node_encodings
     ):
-        mock_torch_load.side_effect = [mock_embeddings, {}]
-        mock_gat_cls.return_value = mock_gat_model
-        mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
-
+        mock_torch_load.return_value = mock_node_encodings
         nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
 
-        # Disease 3 has an existing TREATS from Drug 0 in sample_edges_df
         results = predict_drugs(
             3, top_k=10, model_path=Path("dummy_model.pt"), data_dir=data_dir
         )
@@ -76,19 +61,10 @@ class TestPredictDrugs:
         assert 0 not in drug_ids
 
     @patch("predict.torch.load")
-    @patch("predict.GATLinkPredictor")
     def test_respects_top_k(
-        self,
-        mock_gat_cls,
-        mock_torch_load,
-        sample_triples_csv,
-        mock_embeddings,
-        mock_gat_model,
+        self, mock_torch_load, sample_triples_csv, mock_node_encodings
     ):
-        mock_torch_load.side_effect = [mock_embeddings, {}]
-        mock_gat_cls.return_value = mock_gat_model
-        mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
-
+        mock_torch_load.return_value = mock_node_encodings
         nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
 
@@ -98,19 +74,10 @@ class TestPredictDrugs:
         assert len(results) == 1
 
     @patch("predict.torch.load")
-    @patch("predict.GATLinkPredictor")
     def test_result_structure(
-        self,
-        mock_gat_cls,
-        mock_torch_load,
-        sample_triples_csv,
-        mock_embeddings,
-        mock_gat_model,
+        self, mock_torch_load, sample_triples_csv, mock_node_encodings
     ):
-        mock_torch_load.side_effect = [mock_embeddings, {}]
-        mock_gat_cls.return_value = mock_gat_model
-        mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
-
+        mock_torch_load.return_value = mock_node_encodings
         nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
 
@@ -125,27 +92,17 @@ class TestPredictDrugs:
             assert "rank" in res
 
     @patch("predict.torch.load")
-    @patch("predict.GATLinkPredictor")
     def test_all_results_are_drugs(
-        self,
-        mock_gat_cls,
-        mock_torch_load,
-        sample_triples_csv,
-        mock_embeddings,
-        mock_gat_model,
+        self, mock_torch_load, sample_triples_csv, mock_node_encodings
     ):
-        mock_torch_load.side_effect = [mock_embeddings, {}]
-        mock_gat_cls.return_value = mock_gat_model
-        mock_gat_model.encode = MagicMock(return_value=mock_embeddings)
-
-        nodes_path, _ = sample_triples_csv
+        mock_torch_load.return_value = mock_node_encodings
+        nodes_path, _edges_path = sample_triples_csv
         data_dir = nodes_path.parent
 
         results = predict_drugs(
             4, top_k=10, model_path=Path("dummy_model.pt"), data_dir=data_dir
         )
 
-        # Only Drug nodes are 0, 1, 2
         drug_ids = [r["drug_id"] for r in results]
         for did in drug_ids:
             assert did in [0, 1, 2]

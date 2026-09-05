@@ -45,4 +45,4 @@ jobs:
       - name: Re-publish to the same GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload artifacts-latest ml-core/curovex-artifacts.tar.gz --clobber
+        run: gh release upload artifacts-latest curovex-artifacts.tar.gz --clobber
