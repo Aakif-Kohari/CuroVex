@@ -1,7 +1,9 @@
-"""Predicts candidate drugs for a disease using the trained GAT model.
+"""Predicts candidate drugs for a disease using precomputed GAT node encodings.
 
-Given a disease_id (Neo4j node integer id or MONDO:* string), loads the
-trained model, scores all Drug nodes, and returns a ranked list.
+Given a disease_id (node integer id or MONDO:* string), loads precomputed
+node encodings (produced once by precompute_encodings.py), scores all Drug
+nodes, and returns a ranked list. Does not import torch-geometric or pykeen —
+those are only needed at training/precompute time, not at serve time.
 
 Usage:
     python predict.py 1                    # by node_index
@@ -14,52 +16,29 @@ from pathlib import Path
 
 import pandas as pd
 import torch
-from graph_utils import (
-    build_pyg_data,
-    get_default_csv_paths,
-    get_node_id_maps,
-    load_triples_from_csv,
-)
-from train_gat import GATLinkPredictor
+from graph_utils import get_default_csv_paths
 
-_MODEL_CACHE: dict = {}
+_ENCODINGS_CACHE: dict = {}
 
 
-def _load_model_and_graph(model_path: Path, data_dir: Path | None, device: str):
-    """Load the GAT model, graph, and embeddings, caching them to avoid reloading on every request."""
-    cache_key = (str(model_path), str(data_dir), device)
-    if cache_key in _MODEL_CACHE:
-        return _MODEL_CACHE[cache_key]
+def _load_encodings_and_graph(model_path: Path, data_dir: Path | None):
+    cache_key = (str(model_path), str(data_dir))
+    if cache_key in _ENCODINGS_CACHE:
+        return _ENCODINGS_CACHE[cache_key]
 
     if data_dir:
-        nodes_path = data_dir / "nodes.csv"
-        edges_path = data_dir / "edges.csv"
+        nodes_path, edges_path = data_dir / "nodes.csv", data_dir / "edges.csv"
     else:
         nodes_path, edges_path = get_default_csv_paths()
 
     nodes_df = pd.read_csv(nodes_path)
     edges_df = pd.read_csv(edges_path)
+    node_encodings = torch.load(
+        model_path.parent / "node_encodings.pt", map_location="cpu"
+    )
 
-    embeddings_path = model_path.parent / "best_embeddings.pt"
-    entity_embeddings = torch.load(embeddings_path, map_location=device)
-    if entity_embeddings.is_complex():
-        entity_embeddings = torch.view_as_real(entity_embeddings).flatten(1)
-
-    in_dim = entity_embeddings.shape[1]
-    model = GATLinkPredictor(in_dim=in_dim, hidden_dim=128, out_dim=in_dim)
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.to(device)
-    model.eval()
-
-    triples_factory = load_triples_from_csv(nodes_path, edges_path)
-    label_to_id = get_node_id_maps(triples_factory)["label_to_id"]
-    data = build_pyg_data(triples_factory, entity_embeddings).to(device)
-
-    with torch.no_grad():
-        z = model.encode(data.x, data.edge_index)
-
-    cached = (nodes_df, edges_df, label_to_id, z)
-    _MODEL_CACHE[cache_key] = cached
+    cached = (nodes_df, edges_df, node_encodings)
+    _ENCODINGS_CACHE[cache_key] = cached
     return cached
 
 
@@ -97,15 +76,12 @@ def predict_drugs(
     device: str = "cpu",
 ) -> list[dict]:
     """Predict top_k candidate drugs for a given disease_id."""
-    nodes_df, edges_df, label_to_id, z = _load_model_and_graph(
-        model_path, data_dir, device
-    )
+    nodes_df, edges_df, node_encodings = _load_encodings_and_graph(model_path, data_dir)
 
-    disease_str_id = str(disease_id)
-    if disease_str_id not in label_to_id:
+    if disease_id >= node_encodings.shape[0]:
         raise ValueError(f"Disease ID {disease_id} not found in graph.")
 
-    disease_emb = z[label_to_id[disease_str_id]]
+    disease_emb = node_encodings[disease_id]
     drug_nodes = nodes_df[nodes_df["labels"].str.contains("Drug")]
 
     existing_treats = {
@@ -118,14 +94,13 @@ def predict_drugs(
     results = []
     for _, drug_row in drug_nodes.iterrows():
         drug_idx = int(drug_row["node_index"])
-        if drug_idx in existing_treats or str(drug_idx) not in label_to_id:
+        if drug_idx in existing_treats or drug_idx >= node_encodings.shape[0]:
             continue
-        drug_emb = z[label_to_id[str(drug_idx)]]
         results.append(
             {
                 "drug_id": drug_idx,
                 "drug_name": drug_row["name"],
-                "score": torch.dot(drug_emb, disease_emb).item(),
+                "score": torch.dot(node_encodings[drug_idx], disease_emb).item(),
             }
         )
 
