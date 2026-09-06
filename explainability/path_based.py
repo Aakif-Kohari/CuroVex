@@ -15,6 +15,7 @@ import os
 from dataclasses import dataclass
 
 from dotenv import load_dotenv
+from neo4j import GraphDatabase
 
 
 @dataclass
@@ -95,7 +96,6 @@ def find_paths(
     drug_id: int, disease_id: int, max_hops: int = 3
 ) -> list[ExplanationPath]:
     """Finds paths between a drug and a disease in Neo4j."""
-    from neo4j import GraphDatabase  # Lazy import
 
     config = get_neo4j_config()
     driver = GraphDatabase.driver(
