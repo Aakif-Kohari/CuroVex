@@ -14,11 +14,36 @@ Usage:
 import argparse
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import torch
-from graph_utils import get_default_csv_paths
+
+# NO MORE IMPORTS FROM graph_utils. We are fully standalone.
 
 _ENCODINGS_CACHE: dict = {}
+
+
+def get_default_csv_paths() -> tuple[Path, Path]:
+    """Get the default paths to the normalized nodes and edges CSV files.
+
+    Duplicated here (not imported from graph_utils.py) on purpose: graph_utils.py
+    imports pykeen and torch-geometric at module level for training-time use,
+    and importing anything from that file — even this one small function —
+    would pull that entire weight into the deployed API process.
+    """
+    current_dir = Path.cwd()
+    candidates = [
+        current_dir / "data" / "normalized",
+        current_dir.parent / "kg-pipeline" / "data" / "normalized",
+        current_dir.parent / "data" / "normalized",
+    ]
+    for base_path in candidates:
+        nodes_path = base_path / "nodes.csv"
+        edges_path = base_path / "edges.csv"
+        if nodes_path.exists() and edges_path.exists():
+            return nodes_path, edges_path
+    base_path = current_dir.parent / "kg-pipeline" / "data" / "normalized"
+    return base_path / "nodes.csv", base_path / "edges.csv"
 
 
 def _load_encodings_and_graph(model_path: Path, data_dir: Path | None):
@@ -31,11 +56,16 @@ def _load_encodings_and_graph(model_path: Path, data_dir: Path | None):
     else:
         nodes_path, edges_path = get_default_csv_paths()
 
-    nodes_df = pd.read_csv(nodes_path)
-    edges_df = pd.read_csv(edges_path)
-    node_encodings = torch.load(
-        model_path.parent / "node_encodings.pt", map_location="cpu"
+    # Read only the columns we need to save RAM
+    nodes_df = pd.read_csv(
+        nodes_path, usecols=["node_index", "name", "labels", "source_id"]
     )
+    edges_df = pd.read_csv(edges_path, usecols=["source_index", "target_index", "type"])
+
+    # Load precomputed encodings and force float32 (saves massive RAM)
+    node_encodings = torch.load(
+        model_path.parent / "node_encodings.pt", map_location="cpu", weights_only=True
+    ).float()
 
     cached = (nodes_df, edges_df, node_encodings)
     _ENCODINGS_CACHE[cache_key] = cached
@@ -82,33 +112,50 @@ def predict_drugs(
         raise ValueError(f"Disease ID {disease_id} not found in graph.")
 
     disease_emb = node_encodings[disease_id]
-    drug_nodes = nodes_df[nodes_df["labels"].str.contains("Drug")]
 
-    existing_treats = {
-        int(row["source_index"])
-        for _, row in edges_df[
-            (edges_df["target_index"] == disease_id) & (edges_df["type"] == "TREATS")
-        ].iterrows()
-    }
+    # Get all drug node indices and names efficiently
+    drug_mask = nodes_df["labels"].str.contains("Drug")
+    drug_indices = nodes_df.loc[drug_mask, "node_index"].astype(int).values
+    drug_names = nodes_df.loc[drug_mask, "name"].values
+
+    # Get existing treatments efficiently
+    treats_mask = (edges_df["target_index"] == disease_id) & (
+        edges_df["type"] == "TREATS"
+    )
+    existing_treats = set(
+        edges_df.loc[treats_mask, "source_index"].astype(int).tolist()
+    )
+
+    # Filter out existing treats and out-of-bounds indices
+    valid_mask = ~np.isin(drug_indices, list(existing_treats)) & (
+        drug_indices < node_encodings.shape[0]
+    )
+    valid_indices = drug_indices[valid_mask]
+    valid_names = drug_names[valid_mask]
+
+    if len(valid_indices) == 0:
+        return []
+
+    # Vectorized dot product using matrix-vector multiplication (massive speedup & memory saver)
+    drug_embs = node_encodings[valid_indices]
+    scores = torch.mv(drug_embs, disease_emb)
+
+    # Get top_k results efficiently
+    k = min(top_k, len(scores))
+    top_scores, top_idx = torch.topk(scores, k)
 
     results = []
-    for _, drug_row in drug_nodes.iterrows():
-        drug_idx = int(drug_row["node_index"])
-        if drug_idx in existing_treats or drug_idx >= node_encodings.shape[0]:
-            continue
+    for i, idx in enumerate(top_idx.tolist()):
         results.append(
             {
-                "drug_id": drug_idx,
-                "drug_name": drug_row["name"],
-                "score": torch.dot(node_encodings[drug_idx], disease_emb).item(),
+                "drug_id": int(valid_indices[idx]),
+                "drug_name": str(valid_names[idx]),
+                "score": float(top_scores[i].item()),
+                "rank": i + 1,
             }
         )
 
-    results.sort(key=lambda x: x["score"], reverse=True)
-    top_results = results[:top_k]
-    for i, res in enumerate(top_results):
-        res["rank"] = i + 1
-    return top_results
+    return results
 
 
 def main():
