@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 import torch
 from dotenv import load_dotenv
-from neo4j import GraphDatabase
 from pykeen.triples import TriplesFactory
 from torch_geometric.data import Data
 
@@ -65,6 +64,8 @@ def load_triples_from_neo4j() -> TriplesFactory:
     Returns:
         PyKEEN TriplesFactory
     """
+    from neo4j import GraphDatabase  # Lazy import
+
     uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
     user = os.getenv("NEO4J_USER", "neo4j")
     password = os.getenv("NEO4J_PASSWORD", "curovex_neo4j_dev")

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
@@ -16,7 +16,9 @@ import { Explanation } from "@/lib/types";
 
 export default function ExplanationPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const predictionId = params.predictionId as string;
+  const diseaseId = searchParams.get("disease_id");
   const [activeMethod, setActiveMethod] = useState<
     "path_based" | "counterfactual"
   >("counterfactual");
@@ -47,7 +49,11 @@ export default function ExplanationPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Back nav */}
       <Link
-        href="/search"
+        href={
+          diseaseId
+            ? `/search?disease=${encodeURIComponent(diseaseId)}`
+            : "/search"
+        }
         className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-teal-400 transition-colors mb-6"
       >
         <ArrowLeft className="w-4 h-4" />

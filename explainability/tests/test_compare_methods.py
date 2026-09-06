@@ -160,7 +160,9 @@ class TestCompareMethods:
         assert "path_fidelity" in df.columns
 
     @patch("explainability.compare_methods.path_explain")
-    def test_empty_predictions_returns_empty_df(self, mock_path, small_model, small_features, small_graph):
+    def test_empty_predictions_returns_empty_df(
+        self, mock_path, small_model, small_features, small_graph
+    ):
         df = compare_methods(
             predictions=[],
             model=small_model,
@@ -175,17 +177,21 @@ class TestCompareMethods:
 
 class TestFormatComparisonTable:
     def test_formats_nonempty_dataframe(self):
-        df = pd.DataFrame([{
-            "drug_id": 0,
-            "disease_id": 1,
-            "original_score": 0.85,
-            "path_num_paths": 3,
-            "path_fidelity": 0.72,
-            "path_sparsity": 0.3,
-            "cf_num_edges": 10,
-            "cf_fidelity": 0.89,
-            "cf_sparsity": 0.4,
-        }])
+        df = pd.DataFrame(
+            [
+                {
+                    "drug_id": 0,
+                    "disease_id": 1,
+                    "original_score": 0.85,
+                    "path_num_paths": 3,
+                    "path_fidelity": 0.72,
+                    "path_sparsity": 0.3,
+                    "cf_num_edges": 10,
+                    "cf_fidelity": 0.89,
+                    "cf_sparsity": 0.4,
+                }
+            ]
+        )
         output = format_comparison_table(df)
         assert "Path-Based vs Counterfactual" in output
         assert "Mean Fidelity" in output

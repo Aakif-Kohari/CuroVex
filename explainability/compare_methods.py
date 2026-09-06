@@ -206,7 +206,9 @@ def compare_single_prediction(
         path_explanations = path_explain(drug_id, disease_id, max_hops=min(max_hops, 3))
         path_num_paths = sum(exp.support_count for exp in path_explanations)
     except Exception as e:
-        logger.warning("Path-based explanation failed for (%s, %s): %s", drug_id, disease_id, e)
+        logger.warning(
+            "Path-based explanation failed for (%s, %s): %s", drug_id, disease_id, e
+        )
         path_explanations = []
         path_num_paths = 0
 
@@ -334,17 +336,19 @@ def compare_methods(
                 max_hops=max_hops,
                 max_edges=max_edges,
             )
-            rows.append({
-                "drug_id": row.drug_id,
-                "disease_id": row.disease_id,
-                "original_score": row.original_score,
-                "path_num_paths": row.path_num_paths,
-                "path_fidelity": row.path_fidelity,
-                "path_sparsity": row.path_sparsity,
-                "cf_num_edges": row.cf_num_edges,
-                "cf_fidelity": row.cf_fidelity,
-                "cf_sparsity": row.cf_sparsity,
-            })
+            rows.append(
+                {
+                    "drug_id": row.drug_id,
+                    "disease_id": row.disease_id,
+                    "original_score": row.original_score,
+                    "path_num_paths": row.path_num_paths,
+                    "path_fidelity": row.path_fidelity,
+                    "path_sparsity": row.path_sparsity,
+                    "cf_num_edges": row.cf_num_edges,
+                    "cf_fidelity": row.cf_fidelity,
+                    "cf_sparsity": row.cf_sparsity,
+                }
+            )
         except Exception as e:
             logger.error(
                 "Failed to compare Drug %d -> Disease %d: %s", drug_id, disease_id, e
@@ -386,22 +390,24 @@ def format_comparison_table(df: pd.DataFrame) -> str:
         )
 
     # Aggregate statistics
-    lines.extend([
-        "",
-        "--- Aggregate Statistics ---",
-        "",
-        f"{'Metric':<25} | {'Path-Based':<15} | {'Counterfactual':<15}",
-        "-" * 60,
-        f"{'Mean Fidelity':<25} | {df['path_fidelity'].mean():<15.4f} | "
-        f"{df['cf_fidelity'].mean():<15.4f}",
-        f"{'Std Fidelity':<25} | {df['path_fidelity'].std():<15.4f} | "
-        f"{df['cf_fidelity'].std():<15.4f}",
-        f"{'Mean Sparsity':<25} | {df['path_sparsity'].mean():<15.4f} | "
-        f"{df['cf_sparsity'].mean():<15.4f}",
-        f"{'Std Sparsity':<25} | {df['path_sparsity'].std():<15.4f} | "
-        f"{df['cf_sparsity'].std():<15.4f}",
-        f"{'Num Predictions':<25} | {len(df):<15} | {len(df):<15}",
-    ])
+    lines.extend(
+        [
+            "",
+            "--- Aggregate Statistics ---",
+            "",
+            f"{'Metric':<25} | {'Path-Based':<15} | {'Counterfactual':<15}",
+            "-" * 60,
+            f"{'Mean Fidelity':<25} | {df['path_fidelity'].mean():<15.4f} | "
+            f"{df['cf_fidelity'].mean():<15.4f}",
+            f"{'Std Fidelity':<25} | {df['path_fidelity'].std():<15.4f} | "
+            f"{df['cf_fidelity'].std():<15.4f}",
+            f"{'Mean Sparsity':<25} | {df['path_sparsity'].mean():<15.4f} | "
+            f"{df['cf_sparsity'].mean():<15.4f}",
+            f"{'Std Sparsity':<25} | {df['path_sparsity'].std():<15.4f} | "
+            f"{df['cf_sparsity'].std():<15.4f}",
+            f"{'Num Predictions':<25} | {len(df):<15} | {len(df):<15}",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -428,7 +434,9 @@ def main() -> None:
         default=None,
         help="Generate predictions for this disease and compare",
     )
-    parser.add_argument("--top-k", type=int, default=5, help="Number of predictions to compare")
+    parser.add_argument(
+        "--top-k", type=int, default=5, help="Number of predictions to compare"
+    )
     parser.add_argument("--max-hops", type=int, default=2, help="Subgraph hops")
     parser.add_argument("--max-edges", type=int, default=50, help="Max edges to mask")
     parser.add_argument(
@@ -474,7 +482,10 @@ def main() -> None:
         from predict import predict_drugs
 
         results = predict_drugs(
-            args.disease_id, args.top_k, model_path, data_dir=Path(args.data_dir) if args.data_dir else None
+            args.disease_id,
+            args.top_k,
+            model_path,
+            data_dir=Path(args.data_dir) if args.data_dir else None,
         )
         predictions = [
             {"drug_id": r["drug_id"], "disease_id": args.disease_id} for r in results

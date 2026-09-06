@@ -1,17 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import SearchBar from "@/components/SearchBar";
 import PredictionList from "@/components/PredictionList";
 import { SkeletonCard } from "@/components/SkeletonLoader";
 import { getPredictions } from "@/lib/api";
-import { Prediction } from "@/lib/types";
+import { useSearchParams } from "next/navigation";
 
-export default function SearchPage() {
+function SearchContent() {
   const [diseaseQuery, setDiseaseQuery] = useState("");
   const [searchTrigger, setSearchTrigger] = useState("");
+  const searchParams = useSearchParams();
+  const hasSearchedRef = useRef(false);
+
+  const handleSearch = (query: string) => {
+    setDiseaseQuery(query);
+    setSearchTrigger(query);
+  };
+
+  // Auto-run search if returning from explanation page
+  useEffect(() => {
+    const d = searchParams.get("disease");
+    if (d && !hasSearchedRef.current) {
+      hasSearchedRef.current = true;
+      handleSearch(d);
+    }
+  }, [searchParams]);
 
   const {
     data: predictionRun,
@@ -23,11 +39,6 @@ export default function SearchPage() {
     queryFn: () => getPredictions(searchTrigger),
     enabled: !!searchTrigger,
   });
-
-  const handleSearch = (query: string) => {
-    setDiseaseQuery(query);
-    setSearchTrigger(query);
-  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -88,29 +99,52 @@ export default function SearchPage() {
         </motion.div>
       )}
 
-      {predictionRun && !isLoading && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-semibold">
-                Results for{" "}
-                <span className="text-teal-400">{diseaseQuery}</span>
-              </h2>
-              <p className="text-sm text-slate-500 mt-1">
-                {predictionRun.predictions.length} candidates ranked by
-                prediction score
-              </p>
+      {predictionRun &&
+        !isLoading &&
+        !isError &&
+        predictionRun.predictions.length > 0 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-semibold">
+                  Results for{" "}
+                  <span className="text-teal-400">{diseaseQuery}</span>
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  {predictionRun.predictions.length} candidates ranked by
+                  prediction score
+                </p>
+              </div>
+              <span className="text-xs text-slate-600 bg-navy-800 px-3 py-1.5 rounded-full border border-navy-700">
+                Model: {predictionRun.model_version || "GAT-v1"}
+              </span>
             </div>
-            <span className="text-xs text-slate-600 bg-navy-800 px-3 py-1.5 rounded-full border border-navy-700">
-              Model: {predictionRun.model_version || "GAT-v1"}
-            </span>
-          </div>
-          <PredictionList
-            predictions={predictionRun.predictions}
-            diseaseId={searchTrigger}
-          />
-        </motion.div>
-      )}
+            <PredictionList
+              predictions={predictionRun.predictions}
+              diseaseId={searchTrigger}
+            />
+          </motion.div>
+        )}
+
+      {predictionRun &&
+        !isLoading &&
+        !isError &&
+        predictionRun.predictions.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <h3 className="text-lg font-semibold text-slate-300 mb-2">
+              No Candidates Found
+            </h3>
+            <p className="text-sm text-slate-500 max-w-md mx-auto">
+              {/* Escaped quotes to satisfy ESLint react/no-unescaped-entities */}
+              No predictions found for &quot;{searchTrigger}&quot;. Try another
+              disease.
+            </p>
+          </motion.div>
+        )}
 
       {/* Initial state */}
       {!searchTrigger && !isLoading && (
@@ -133,5 +167,19 @@ export default function SearchPage() {
         </motion.div>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-12 text-center text-slate-400">
+          Loading search...
+        </div>
+      }
+    >
+      <SearchContent />
+    </Suspense>
   );
 }

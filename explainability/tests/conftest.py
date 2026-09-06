@@ -6,12 +6,13 @@ from explainability.path_based import ExplanationPath, PathEdge, PathNode
 @pytest.fixture
 def mock_neo4j_paths():
     """Mock Neo4j path objects matching the specified patterns."""
+
     class MockNode:
         def __init__(self, node_id, name, labels):
             self.id_val = node_id
             self.name_val = name
             self.labels = labels
-            
+
         def get(self, key, default=None):
             if key == "id":
                 return self.id_val
@@ -24,7 +25,7 @@ def mock_neo4j_paths():
             self.start_node = start_node
             self.end_node = end_node
             self.type = rel_type
-            
+
     class MockPath:
         def __init__(self, nodes, relationships):
             self.nodes = nodes
@@ -52,6 +53,7 @@ def mock_neo4j_paths():
 
     return [path1, path2, path3]
 
+
 @pytest.fixture
 def sample_explanation_paths():
     """Pre-built ExplanationPath objects matching the mock paths."""
@@ -64,19 +66,23 @@ def sample_explanation_paths():
     ep1 = ExplanationPath(
         nodes=[d0, p2, dis1],
         edges=[PathEdge(0, 2, "TARGETS"), PathEdge(2, 1, "ASSOCIATED_WITH")],
-        meta_path_pattern="Drug -[TARGETS]-> Gene -[ASSOCIATED_WITH]-> Disease"
+        meta_path_pattern="Drug -[TARGETS]-> Gene -[ASSOCIATED_WITH]-> Disease",
     )
 
     ep2 = ExplanationPath(
         nodes=[d0, p5, dis1],
         edges=[PathEdge(0, 5, "TARGETS"), PathEdge(5, 1, "ASSOCIATED_WITH")],
-        meta_path_pattern="Drug -[TARGETS]-> Gene -[ASSOCIATED_WITH]-> Disease"
+        meta_path_pattern="Drug -[TARGETS]-> Gene -[ASSOCIATED_WITH]-> Disease",
     )
 
     ep3 = ExplanationPath(
         nodes=[d0, p2, pathway3, dis1],
-        edges=[PathEdge(0, 2, "TARGETS"), PathEdge(2, 3, "PART_OF_PATHWAY"), PathEdge(3, 1, "ASSOCIATED_WITH")],
-        meta_path_pattern="Drug -[TARGETS]-> Gene -[PART_OF_PATHWAY]-> Pathway -[ASSOCIATED_WITH]-> Disease"
+        edges=[
+            PathEdge(0, 2, "TARGETS"),
+            PathEdge(2, 3, "PART_OF_PATHWAY"),
+            PathEdge(3, 1, "ASSOCIATED_WITH"),
+        ],
+        meta_path_pattern="Drug -[TARGETS]-> Gene -[PART_OF_PATHWAY]-> Pathway -[ASSOCIATED_WITH]-> Disease",
     )
 
     return [ep1, ep2, ep3]

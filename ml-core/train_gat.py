@@ -11,12 +11,10 @@ Usage:
 import argparse
 from pathlib import Path
 
-import mlflow
 import torch
 import torch.nn.functional as F
 from dotenv import load_dotenv
 from graph_utils import build_pyg_data, get_default_csv_paths, load_triples_from_csv
-from sklearn.metrics import average_precision_score, roc_auc_score
 from torch import nn
 from torch_geometric.nn import GATConv
 from torch_geometric.transforms import RandomLinkSplit
@@ -45,6 +43,10 @@ class GATLinkPredictor(nn.Module):
 
 
 def train():
+    # LAZY IMPORTS: Only load heavy training libraries when actually training
+    import mlflow
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--lr", type=float, default=0.001)

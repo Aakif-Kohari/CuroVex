@@ -205,7 +205,9 @@ class TestMaskEdge:
                 if masked[0, j].item() == src and masked[1, j].item() == dst:
                     found = True
                     break
-            assert found, f"Edge ({src}, {dst}) at index {i} missing after masking index 2"
+            assert (
+                found
+            ), f"Edge ({src}, {dst}) at index {i} missing after masking index 2"
 
     def test_does_not_modify_original(self, small_graph):
         """Masking should not modify the original tensor."""
@@ -257,7 +259,9 @@ class TestComputePredictionScore:
         )
         assert score1 == score2
 
-    def test_different_pairs_different_scores(self, small_model, small_features, small_graph):
+    def test_different_pairs_different_scores(
+        self, small_model, small_features, small_graph
+    ):
         """Different drug-disease pairs should generally give different scores."""
         score_01 = compute_prediction_score(
             small_model,
@@ -371,7 +375,9 @@ class TestCounterfactualExplain:
         )
         assert len(result.masked_edges) > 0
 
-    def test_masked_edges_sorted_by_fidelity(self, small_model, small_features, small_graph):
+    def test_masked_edges_sorted_by_fidelity(
+        self, small_model, small_features, small_graph
+    ):
         """Masked edges should be sorted by absolute fidelity, descending."""
         result = counterfactual_explain(
             drug_id=0,
@@ -433,13 +439,13 @@ class TestCounterfactualExplain:
             fidelity_threshold=0.05,
         )
         if result.masked_edges:
-            significant = sum(
-                1 for e in result.masked_edges if abs(e.fidelity) > 0.05
-            )
+            significant = sum(1 for e in result.masked_edges if abs(e.fidelity) > 0.05)
             expected_sparsity = significant / len(result.masked_edges)
             assert abs(result.sparsity - expected_sparsity) < 1e-6
 
-    def test_subgraph_has_nodes_and_edges(self, small_model, small_features, small_graph):
+    def test_subgraph_has_nodes_and_edges(
+        self, small_model, small_features, small_graph
+    ):
         """Subgraph JSON should contain nodes and edges lists."""
         result = counterfactual_explain(
             drug_id=0,
@@ -481,7 +487,9 @@ class TestCounterfactualExplain:
                 id_to_label=small_graph["id_to_label"],
             )
 
-    def test_each_masked_edge_has_original_score(self, small_model, small_features, small_graph):
+    def test_each_masked_edge_has_original_score(
+        self, small_model, small_features, small_graph
+    ):
         """Every MaskedEdgeResult should reference the same original score."""
         result = counterfactual_explain(
             drug_id=0,
